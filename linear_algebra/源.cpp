@@ -38,7 +38,7 @@ int main()
 	m2.transpose_to_assign(); // transpose m2 itself
 
 	// matrix inverse
-	square_matrix_4d m4;
+	square_matrix_4d m4 = make_identity_matrix<double, 4>();
 	square_matrix_4d m5 = m4.inverse(); // m4 itself is not affected
 	m4.inverse_to_assign(); // inverse m4 itself
 

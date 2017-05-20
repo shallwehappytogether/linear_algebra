@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numeric>
 #include <cassert>
+#include <memory>
 
 namespace linear_algebra
 {
@@ -112,6 +113,8 @@ namespace linear_algebra
 				return !(*this == right);
 			}
 		};
+
+		constexpr bool _column_first_storage = false;
 	}
 
 	template <typename Ty, std::size_t Dimension>
@@ -219,7 +222,7 @@ namespace linear_algebra
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
 		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
-	private:
+	protected:
 		using MyBase::operator[];
 
 		using MyBase::at;
@@ -227,8 +230,6 @@ namespace linear_algebra
 		using MyBase::begin;
 
 		using MyBase::end;
-
-		constexpr static bool _isSquare = RowDimension == ColumnDimension;
 	public:
 		using MyBase::_number_array;
 
@@ -256,12 +257,22 @@ namespace linear_algebra
 
 		reference operator[](const location_type &idimensions)
 		{
-			return MyBase::operator[](_elemIndexAt(idimensions.first, idimensions.second));
+			return element_at(idimensions.first, idimensions.second);
 		}
 
 		const_reference operator[](const location_type &idimensions) const
 		{
-			return MyBase::operator[](_elemIndexAt(idimensions.first, idimensions.second));
+			return element_at(idimensions.first, idimensions.second);
+		}
+
+		reference element_at(row_dimension_type rowdimension, column_dimension_type columndimension)
+		{
+			return MyBase::operator[](_elemIndexAt(rowdimension, columndimension));
+		}
+
+		const_reference element_at(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		{
+			return MyBase::operator[](_elemIndexAt(rowdimension, columndimension));
 		}
 
 		reference at(row_dimension_type rowdimension, column_dimension_type columndimension)
@@ -301,9 +312,17 @@ namespace linear_algebra
 			return result;
 		}
 	private:
+		template <typename RowFirstStorage = void>
 		size_type _elemIndexAt(row_dimension_type rowdimension, column_dimension_type columndimension) const
 		{
 			return rowdimension * ColumnDimension + columndimension;
+		}
+
+		template <>
+		size_type _elemIndexAt<std::enable_if_t<impl::_column_first_storage>>(
+			row_dimension_type rowdimension, column_dimension_type columndimension) const
+		{
+			return columndimension * RowDimension + rowdimension;
 		}
 	};
 
@@ -317,7 +336,7 @@ namespace linear_algebra
 
 		typedef row_dimension_type dimension_type;
 
-		constexpr dimension_type dimension() const
+		constexpr static dimension_type dimension()
 		{
 			return Dimension;
 		}
@@ -327,14 +346,37 @@ namespace linear_algebra
 			return *this = transpose();
 		}
 
-		basic_square_matrix& inverse_to_assign()
+		basic_square_matrix& adjoint_to_assign()
 		{
-			return *this;
+			return *this = adjoint();
 		}
 
-		basic_square_matrix& inverse() const
+		template <typename Enable = void>
+		basic_square_matrix adjoint() const
 		{
-			return basic_square_matrix(*this).inverse_to_assign();
+			basic_square_matrix result;
+			for (dimension_type r = 0; r < dimension(); ++r)
+				for (dimension_type c = 0; c < dimension(); ++c)
+				{
+					auto detFac = algebraic_cofactor(r, c).determinant();
+					result.element_at(c, r) = detFac;
+				}
+			return result;
+		}
+
+		basic_square_matrix& inverse_to_assign()
+		{
+			return *this = inverse();
+		}
+
+		basic_square_matrix inverse() const
+		{
+			auto det = determinant();
+			if (det == 0)
+				return *this;
+			auto result = adjoint();
+			result /= det;
+			return result;
 		}
 
 		basic_square_matrix<Ty, Dimension - 1>
@@ -342,29 +384,223 @@ namespace linear_algebra
 		{
 			static_assert(Dimension > 0,
 				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
-
 			basic_square_matrix<Ty, Dimension - 1> result;
-
-			for (dimension_type i = 0; i < r; ++i)
-			{
-				for (dimension_type j = 0; j < c; ++j)
-					result[{ i, j }] = (*this)[{ i, j }];
-				if (c != std::numeric_limits<dimension_type>::max() - 1)
-					for (dimension_type j = c + 1; j < dimension(); ++j)
-						result[{ i, j - 1 }] = (*this)[{ i, j }];
-			}
-
-			if (r != std::numeric_limits<dimension_type>::max())
-				for (dimension_type i = r + 1; i < dimension(); ++i)
-				{
-					for (dimension_type j = 0; j < c; ++j)
-						result[{ i - 1, j }] = (*this)[{ i, j }];
-					if (c != std::numeric_limits<dimension_type>::max() - 1)
-						for (dimension_type j = c + 1; j < dimension(); ++j)
-							result[{ i - 1, j - 1 }] = (*this)[{ i, j }];
-				}
+			_saveCofactor(data(), dimension(), r, c, result.data());
 			return result;
 		}
+
+		template <typename HigherDimension = void>
+		value_type determinant() const
+		{
+			return _det_helper<Dimension>::get(*this);
+		}
+
+	private:
+		template <typename RowFirstStorage = void>
+		static void _saveCofactor(
+			const Ty *from,
+			size_type fromdim,
+			size_type r,
+			size_type c,
+			Ty *result)
+		{
+			size_type iOutput = 0;
+			for (size_type i = 0; i < r; ++i)
+			{
+				for (size_type j = 0; j < c; ++j)
+					result[iOutput++] = from[i * fromdim + j];
+				if (c != std::numeric_limits<size_type>::max() - 1)
+					for (size_type j = c + 1; j < fromdim; ++j)
+						result[iOutput++] = from[i * fromdim + j];
+			}
+			if (r != std::numeric_limits<size_type>::max())
+				for (size_type i = r + 1; i < fromdim; ++i)
+				{
+					for (size_type j = 0; j < c; ++j)
+						result[iOutput++] = from[i * fromdim + j];
+					if (c != std::numeric_limits<size_type>::max() - 1)
+						for (size_type j = c + 1; j < fromdim; ++j)
+							result[iOutput++] = from[i * fromdim + j];
+				}
+		}
+
+		template <>
+		static void _saveCofactor<std::enable_if_t<impl::_column_first_storage>>(
+			const Ty *from,
+			size_type fromdim,
+			size_type r,
+			size_type c,
+			Ty *result)
+		{
+			size_type iOutput = 0;
+			for (size_type i = 0; i < c; ++i)
+			{
+				for (size_type j = 0; j < r; ++j)
+					result[iOutput++] = from[j * fromdim + i];
+				if (r != std::numeric_limits<size_type>::max() - 1)
+					for (size_type j = r + 1; j < fromdim; ++j)
+						result[iOutput++] = from[j * fromdim + i];
+			}
+			if (c != std::numeric_limits<size_type>::max())
+				for (size_type i = c + 1; i < fromdim; ++i)
+				{
+					for (size_type j = 0; j < r; ++j)
+						result[iOutput++] = from[j * fromdim + i];
+					if (r != std::numeric_limits<size_type>::max() - 1)
+						for (size_type j = r + 1; j < fromdim; ++j)
+							result[iOutput++] = from[j * fromdim + i];
+				}
+		}
+
+		template <typename RowFirstStorage = void>
+		static inline Ty _getElment(const Ty *arr, dimension_type dim, dimension_type r, dimension_type c)
+		{
+			return arr[r * dim + c];
+		}
+
+		template <>
+		static inline Ty _getElment<std::enable_if_t<impl::_column_first_storage>>(
+			const Ty *arr, dimension_type dim, dimension_type r, dimension_type c)
+		{
+			return arr[c * dim + r];
+		}
+
+		static inline value_type _5dOrHigerDet(
+			Ty *arr, dimension_type dim)
+		{
+			assert(dim >= 4);
+
+			if (dim == 4)
+				return _4dDet(arr);
+
+			auto elemAt = [=](auto r, auto c) { return _getElment(arr, dim, r, c); };
+			Ty result = 0;
+			for (dimension_type i = 0; i < dimension(); ++i)
+			{
+				auto tmp = std::make_unique<Ty[]>((dim - 1) * (dim - 1));
+				_saveCofactor(arr, dim, 0, i, tmp.data());
+				auto v = _5dOrHigerDet(tmp.data());
+				result += (i % 2 == 0 ? v : -v);
+			}
+
+			return result;
+		}
+
+		static inline value_type _2dDet(
+			const Ty *arr)
+		{
+			auto elemAt = [=](auto r, auto c) { return _getElment(arr, 2, r, c); };
+
+			return elemAt(0, 0) * elemAt(1, 1) -
+				elemAt(0, 1) * elemAt(1, 0);
+		}
+
+		static inline value_type _3dDetHelper(
+			value_type a, value_type b, value_type c,
+			value_type d, value_type e, value_type f,
+			value_type g, value_type h, value_type i)
+		{
+			return a * e * i + b * f * g + c * d * h -
+				c * e * g - b * d * i - a * f * h;
+		}
+
+		static inline value_type _3dDet(
+			const Ty *arr)
+		{
+			auto elemAt = [=](auto r, auto c) { return _getElment(arr, 3, r, c); };
+
+			auto a = elemAt(0, 0);
+			auto b = elemAt(0, 1);
+			auto c = elemAt(0, 2);
+			auto d = elemAt(1, 0);
+			auto e = elemAt(1, 1);
+			auto f = elemAt(1, 2);
+			auto g = elemAt(2, 0);
+			auto h = elemAt(2, 1);
+			auto i = elemAt(2, 2);
+
+			return _3dDetHelper(a, b, c, d, e, f, g, h, i);
+		}
+
+		static inline value_type _4dDet(
+			const Ty *arr)
+		{
+			auto elemAt = [=] (auto r, auto c) { return _getElment(arr, 4, r, c); };
+
+			auto a = elemAt(0, 0);
+			auto b = elemAt(0, 1);
+			auto c = elemAt(0, 2);
+			auto d = elemAt(0, 3);
+			auto e = elemAt(1, 0);
+			auto f = elemAt(1, 1);
+			auto g = elemAt(1, 2);
+			auto h = elemAt(1, 3);
+			auto i = elemAt(2, 0);
+			auto j = elemAt(2, 1);
+			auto k = elemAt(2, 2);
+			auto l = elemAt(2, 3);
+			auto m = elemAt(3, 0);
+			auto n = elemAt(3, 1);
+			auto o = elemAt(3, 2);
+			auto p = elemAt(3, 3);
+
+			auto aterm = _3dDetHelper(f, g, h, j, k, l, n, o, p);
+			auto bterm = _3dDetHelper(e, g, h, i, k, l, m, o, p);
+			auto cterm = _3dDetHelper(e, f, h, i, j, l, m, n, p);
+			auto dterm = _3dDetHelper(e, f, g, i, j, k, m, n, o);
+
+			return a * aterm - b * bterm + c * cterm - d * dterm;
+		}
+
+		template <std::size_t Dimen>
+		struct _det_helper
+		{
+			static value_type get(
+				const basic_square_matrix &m)
+			{
+				return _5dOrHigerDet(m.data(), m.dimension());
+			}
+		};
+
+		template <>
+		struct _det_helper<1>
+		{
+			static value_type get(
+				const basic_square_matrix &m)
+			{
+				return m.data()[0];
+			}
+		};
+
+		template <>
+		struct _det_helper<2>
+		{
+			static value_type get(
+				const basic_square_matrix &m)
+			{
+				return _2dDet(m.data());
+			}
+		};
+
+		template <>
+		struct _det_helper<3>
+		{
+			static value_type get(
+				const basic_square_matrix &m)
+			{
+				return _3dDet(m.data());
+			}
+		};
+
+		template <>
+		struct _det_helper<4>
+		{
+			static value_type get(
+				const basic_square_matrix &m)
+			{
+				return _4dDet(m.data());
+			}
+		};
 	};
 
 	template <typename Ty>
