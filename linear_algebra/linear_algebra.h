@@ -40,10 +40,56 @@ namespace linear_algebra
 			return std::sqrt(length_square());
 		}
 
+		basic_vector operator+() const
+		{
+			return basic_vector(*this);
+		}
+
+		basic_vector operator-() const
+		{
+			basic_vector result(*this);
+			for (auto &comp : result)
+				comp = -comp;
+			return result;
+		}
+
+		basic_vector& normalize_to_assign()
+		{
+			return *this /= length();
+		}
+
+		basic_vector normalize() const
+		{
+			return basic_vector(*this).normalize_to_assign();
+		}
+
+		basic_vector<Ty, Dimension - 1> reduce() const
+		{
+			static_assert(Dimension > 1,
+				"Only vector with 2 or higher dimensions may perform the reduce function.");
+
+			basic_vector<Ty, Dimension - 1> result;
+			for (decltype(result.dimension()) i = 0; i < result.dimension(); ++i)
+				result[i] = (*this)[i];
+			return result;
+		}
+
+		basic_vector<Ty, Dimension + 1> homogeneous(Ty lastcomp = 1) const
+		{
+			static_assert(Dimension < std::numeric_limits<std::size_t>::max(),
+				"Dimension overflow.");
+
+			basic_vector<Ty, Dimension + 1> result;
+			for (decltype(result.dimension()) i = 0; i < result.dimension() - 1; ++i)
+				result[i] = (*this)[i];
+			result[result.dimension() - 1] = lastcomp;
+			return result;
+		}
+
 		template <typename RightTy>
 		basic_vector& operator+=(const basic_vector<RightTy, Dimension> &right)
 		{
-			for (dimension_type i = 0; i != Dimension; ++i)
+			for (dimension_type i = 0; i < dimension(); ++i)
 				left[i] += right[i];
 			return *this;
 		}
@@ -58,7 +104,7 @@ namespace linear_algebra
 		template <typename RightTy>
 		basic_vector& operator-=(const basic_vector<RightTy, Dimension> &right)
 		{
-			for (dimension_type i = 0; i != Dimension; ++i)
+			for (dimension_type i = 0; i < dimension(); ++i)
 				left[i] -= right[i];
 			return *this;
 		}
@@ -94,14 +140,19 @@ namespace linear_algebra
 			return basic_vector(*this) /= right;
 		}
 
-		basic_vector& normalize()
+		template <typename RightTy>
+		bool operator==(const basic_vector<RightTy, Dimension> &right) const
 		{
-			return *this /= length();
+			for (dimension_type i = 0; i < dimension(); ++i)
+				if ((*this)[i] != right[i])
+					return false;
+			return true;
 		}
 
-		basic_vector get_normalized() const
+		template <typename RightTy>
+		bool operator!=(const basic_vector<RightTy, Dimension> &right) const
 		{
-			return basic_vector(*this).normalize();
+			return !(*this == right);
 		}
 	};
 
@@ -138,6 +189,12 @@ namespace linear_algebra
 	template <typename Ty>
 	using basic_vector_4d = basic_vector<Ty, 4>;
 
+	using vector_2d = basic_vector_2d<double>;
+
+	using vector_3d = basic_vector_3d<double>;
+
+	using vector_4d = basic_vector_4d<double>;
+
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
 	class basic_matrix
 		:public std::array<Ty, RowDimension * ColumnDimension>
@@ -147,44 +204,156 @@ namespace linear_algebra
 		using MyBase::operator[];
 
 		using MyBase::at;
-	public:
-		typedef std::size_t dimension_type;
 
-		constexpr dimension_type row_dimension() const
+		using MyBase::begin;
+
+		using MyBase::end;
+
+		constexpr static bool _isSquare = RowDimension == ColumnDimension;
+	public:
+		basic_matrix()
+			:MyBase{}
+		{
+
+		}
+
+		typedef std::size_t row_dimension_type;
+
+		typedef std::size_t column_dimension_type;
+
+		typedef std::pair<row_dimension_type, column_dimension_type> location_type;
+
+		constexpr row_dimension_type row_dimension() const
 		{
 			return RowDimension;
 		}
 
-		constexpr dimension_type column_dimension() const
+		constexpr column_dimension_type column_dimension() const
 		{
 			return ColumnDimension;
 		}
 
-		reference operator[](const std::pair<dimension_type, dimension_type> &idimensions)
+		reference operator[](const location_type &idimensions)
 		{
 			return MyBase::operator[](_elemIndexAt(idimensions.first, idimensions.second));
 		}
 
-		const_reference operator[](const std::pair<dimension_type, dimension_type> &idimensions) const
+		const_reference operator[](const location_type &idimensions) const
 		{
 			return MyBase::operator[](_elemIndexAt(idimensions.first, idimensions.second));
 		}
 
-		reference at(dimension_type rowdimension, dimension_type columndimension)
+		reference at(row_dimension_type rowdimension, column_dimension_type columndimension)
 		{
 			return MyBase::at(_elemIndexAt(rowdimension, columndimension));
 		}
 
-		const_reference at(dimension_type rowdimension, dimension_type columndimension) const
+		const_reference at(row_dimension_type rowdimension, column_dimension_type columndimension) const
 		{
 			return MyBase::at(_elemIndexAt(rowdimension, columndimension));
+		}
+
+		template <class Enabled = void>
+		basic_matrix& transpose_to_assign()
+		{
+			static_assert(false,
+				"Only square matrix may perform the transpose_to_assign function.");
+		}
+
+		template <>
+		basic_matrix& transpose_to_assign<std::enable_if_t<_isSquare>>()
+		{
+			_fillTransposeTo(*this);
+			return *this;
+		}
+
+		basic_matrix<Ty, ColumnDimension, RowDimension> transpose() const
+		{
+			basic_matrix<Ty, ColumnDimension, RowDimension> result;
+			_fillTransposeTo(result);
+			return result;
+		}
+
+		template <class Enabled = void>
+		basic_matrix& inverse_to_assign()
+		{
+			static_assert(false,
+				"Only square matrix may perform the inverse or inverse_to_assign function.");
+		}
+
+		template <>
+		basic_matrix& inverse_to_assign<std::enable_if_t<_isSquare>>()
+		{
+			return *this;
+		}
+
+		template <class Enabled = void>
+		basic_matrix inverse() const
+		{
+			return basic_matrix(*this).inverse_to_assign();
+		}
+
+		template <typename RightTy, std::size_t RightColumnDimension>
+		basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+			operator*(const basic_matrix<RightTy, RowDimension, RightColumnDimension> &right) const
+		{
+			typedef basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+				resultTy;
+			resultTy result;
+			for (decltype(result.row_dimension()) r = 0; r < result.row_dimension(); ++r)
+				for (decltype(result.column_dimension()) c = 0; c < result.column_dimension(); ++c)
+				{
+					typename resultTy::value_type v = 0;
+					for (column_dimension_type i = 0; i < column_dimension(); ++i)
+						v += (*this)[{ r, i }] * right[{ i, c }];
+					result[{ r, c }] = v;
+				}
+			return result;
 		}
 	private:
-		size_type _elemIndexAt(dimension_type rowdimension, dimension_type columndimension) const
+		size_type _elemIndexAt(row_dimension_type rowdimension, column_dimension_type columndimension) const
 		{
 			return rowdimension * ColumnDimension + columndimension;
 		}
+
+		void _fillTransposeTo(basic_matrix<Ty, ColumnDimension, RowDimension> &dest) const
+		{
+			for (row_dimension_type r = 0; r < row_dimension(); ++r)
+				for (column_dimension_type c = 0; c < column_dimension(); ++c)
+					dest[{ r, c }] = (*this)[{ c, r }];
+		}
 	};
+
+	template <typename Ty, std::size_t Dimension>
+	using basic_square_matrix = basic_matrix<Ty, Dimension, Dimension>;
+
+	template <typename Ty>
+	using basic_square_matrix_2d = basic_square_matrix<Ty, 2>;
+
+	template <typename Ty>
+	using basic_square_matrix_3d = basic_square_matrix<Ty, 3>;
+
+	template <typename Ty>
+	using basic_square_matrix_4d = basic_square_matrix<Ty, 4>;
+
+	template <std::size_t Dimension>
+	using square_matrix = basic_square_matrix<double, Dimension>;
+
+	using square_matrix_2d = basic_square_matrix_2d<double>;
+
+	using square_matrix_3d = basic_square_matrix_3d<double>;
+
+	using square_matrix_4d = basic_square_matrix_4d<double>;
+
+	template <typename Ty, std::size_t Dimension>
+	basic_square_matrix<Ty, Dimension>
+		make_identity_matrix()
+	{
+		basic_square_matrix<Ty, Dimension> result;
+		for (decltype(result.row_dimension()) i = 0; i < result.row_dimension(); ++i)
+			result[{ i, i }] = static_cast<Ty>(1);
+		return result;
+	}
 
 	template <typename VectorValueTy, typename MatrixTy,
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
