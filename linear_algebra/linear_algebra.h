@@ -243,8 +243,6 @@ namespace linear_algebra
 
 		typedef std::size_t column_dimension_type;
 
-		typedef std::pair<row_dimension_type, column_dimension_type> location_type;
-
 		constexpr row_dimension_type row_dimension() const
 		{
 			return RowDimension;
@@ -253,16 +251,6 @@ namespace linear_algebra
 		constexpr column_dimension_type column_dimension() const
 		{
 			return ColumnDimension;
-		}
-
-		reference operator[](const location_type &idimensions)
-		{
-			return element_at(idimensions.first, idimensions.second);
-		}
-
-		const_reference operator[](const location_type &idimensions) const
-		{
-			return element_at(idimensions.first, idimensions.second);
 		}
 
 		reference element_at(row_dimension_type rowdimension, column_dimension_type columndimension)
@@ -290,7 +278,7 @@ namespace linear_algebra
 			basic_matrix<Ty, ColumnDimension, RowDimension> result;
 			for (row_dimension_type r = 0; r < row_dimension(); ++r)
 				for (column_dimension_type c = 0; c < column_dimension(); ++c)
-					result[{ c, r }] = (*this)[{ r, c }];
+					result.element_at(c, r) = this->element_at(r, c);
 			return result;
 		}
 
@@ -306,8 +294,8 @@ namespace linear_algebra
 				{
 					typename resultTy::value_type v = 0;
 					for (column_dimension_type i = 0; i < column_dimension(); ++i)
-						v += (*this)[{ r, i }] * right[{ i, c }];
-					result[{ r, c }] = v;
+						v += this->element_at(r, i) * right.element_at(i, c);
+					result.element_at(r, c) = v;
 				}
 			return result;
 		}
@@ -627,7 +615,7 @@ namespace linear_algebra
 	{
 		basic_square_matrix<Ty, Dimension> result;
 		for (decltype(result.row_dimension()) i = 0; i < result.row_dimension(); ++i)
-			result[{ i, i }] = static_cast<Ty>(1);
+			result.element_at(i, i) = static_cast<Ty>(1);
 		return result;
 	}
 
@@ -642,7 +630,7 @@ namespace linear_algebra
 		{
 			std::common_type_t<VectorValueTy, MatrixTy> v = 0;
 			for (decltype(mat.column_dimension()) c = 0; c < MatrixColumnDimension; ++c)
-				v += (vec[c] * mat[{ r, c }]);
+				v += (vec[c] * mat.element_at(r, c));
 			vec[r] = v;
 		}
 		return vec;
@@ -672,7 +660,7 @@ namespace linear_algebra
 		{
 			std::common_type_t<VectorValueTy, MatrixTy> v = 0;
 			for (decltype(mat.row_dimension()) r = 0; r < MatrixRowDimension; ++r)
-				v += (vec[r] * mat[{ r, c }]);
+				v += (vec[r] * mat.element_at(r, c));
 			vec[c] = v;
 		}
 		return vec;
