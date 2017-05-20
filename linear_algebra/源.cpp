@@ -10,6 +10,10 @@ int main()
 	vector_4d v1{ 1, 2 }; // with components (1.0, 2.0, 0.0, 0.0)
 	vector_4d v2{ 1, 2, 3, 4 }; // with components (1.0, 2.0, 3.0, 4.0)
 	vector_4d v3(1, 2); // same as v1
+	if (v1 == v3)
+		std::cout << "v1 == v3\n";
+	if (+v1 != -v3)
+		std::cout << "+v1 != -v3\n";
 
 	// vector normalize
 	vector_4d v4;
@@ -21,6 +25,9 @@ int main()
 
 	// vector cross product, only defined for 3d vectors
 	vector_3d v6 = cross_product(v1.reduce(), v2.reduce());
+
+	// matrix construction
+	square_matrix_4d m0; // zero matrix
 
 	// get an identity matrix
 	square_matrix_4d m1 = make_identity_matrix<double, 4>();

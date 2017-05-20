@@ -8,19 +8,120 @@
 
 namespace linear_algebra
 {
+	namespace impl
+	{
+		/* Common base class for vector and matrix.
+			The _number_array class represents an array of number.
+			It defines:
+				unary +, unary - or binary *, /, *=, /= by a number 
+					by perform them on each element of array;
+				binary +, binary -, +=, -=, ==, != together with another same size _number_array
+					by perform them on value pair of same index.
+		*/
+		template <typename Ty, std::size_t Size>
+		class _number_array
+			:public std::array<Ty, Size>
+		{
+		public:
+			template <typename... Args>
+			_number_array(Args... args)
+				:std::array<Ty, Size>{ static_cast<Ty>(args)... }
+			{
+
+			}
+
+			_number_array operator+() const
+			{
+				return _number_array(*this);
+			}
+
+			_number_array operator-() const
+			{
+				_number_array result(*this);
+				for (auto &comp : result)
+					comp = -comp;
+				return result;
+			}
+
+			template <typename RightTy>
+			_number_array& operator+=(const _number_array<RightTy, Size> &right)
+			{
+				for (size_type i = 0; i < size(); ++i)
+					left[i] += right[i];
+				return *this;
+			}
+
+			template <typename RightTy>
+			_number_array<std::common_type_t<Ty, RightTy>, Size>
+				operator+(const _number_array<RightTy, Size> &right) const
+			{
+				_number_array(*this) += right;
+			}
+
+			template <typename RightTy>
+			_number_array& operator-=(const _number_array<RightTy, Size> &right)
+			{
+				for (size_type i = 0; i < size(); ++i)
+					left[i] -= right[i];
+				return *this;
+			}
+
+			template <typename RightTy>
+			_number_array<std::common_type_t<Ty, RightTy>, Size>
+				operator-(const _number_array<RightTy, Size> &right) const
+			{
+				_number_array(*this) -= right;
+			}
+
+			_number_array& operator*=(const value_type &right)
+			{
+				for (auto &comp : *this)
+					comp *= right;
+				return *this;
+			}
+
+			_number_array operator*(const value_type &right) const
+			{
+				return _number_array(*this) *= right;
+			}
+
+			_number_array& operator/=(const value_type &right)
+			{
+				for (auto &comp : *this)
+					comp /= right;
+				return *this;
+			}
+
+			_number_array operator/(const value_type &right) const
+			{
+				return _number_array(*this) /= right;
+			}
+
+			template <typename RightTy>
+			bool operator==(const _number_array<RightTy, Size> &right) const
+			{
+				for (size_type i = 0; i < size(); ++i)
+					if ((*this)[i] != right[i])
+						return false;
+				return true;
+			}
+
+			template <typename RightTy>
+			bool operator!=(const _number_array<RightTy, Size> &right) const
+			{
+				return !(*this == right);
+			}
+		};
+	}
+
 	template <typename Ty, std::size_t Dimension>
 	class basic_vector
-		:public std::array<Ty, Dimension>
+		:public impl::_number_array<Ty, Dimension>
 	{
 	public:
+		using impl::_number_array<Ty, Dimension>::_number_array;
+
 		typedef std::size_t dimension_type;
-
-		template <typename... Args>
-		basic_vector(Args... args)
-			:std::array<Ty, Dimension>{ static_cast<Ty>(args)... }
-		{
-
-		}
 
 		constexpr dimension_type dimension() const
 		{
@@ -40,22 +141,9 @@ namespace linear_algebra
 			return std::sqrt(length_square());
 		}
 
-		basic_vector operator+() const
-		{
-			return basic_vector(*this);
-		}
-
-		basic_vector operator-() const
-		{
-			basic_vector result(*this);
-			for (auto &comp : result)
-				comp = -comp;
-			return result;
-		}
-
 		basic_vector& normalize_to_assign()
 		{
-			return *this /= length();
+			return static_cast<basic_vector&>(*this /= length());
 		}
 
 		basic_vector normalize() const
@@ -84,75 +172,6 @@ namespace linear_algebra
 				result[i] = (*this)[i];
 			result[result.dimension() - 1] = lastcomp;
 			return result;
-		}
-
-		template <typename RightTy>
-		basic_vector& operator+=(const basic_vector<RightTy, Dimension> &right)
-		{
-			for (dimension_type i = 0; i < dimension(); ++i)
-				left[i] += right[i];
-			return *this;
-		}
-
-		template <typename RightTy>
-		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator+(const basic_vector<RightTy, Dimension> &right) const
-		{
-			basic_vector(*this) += right;
-		}
-
-		template <typename RightTy>
-		basic_vector& operator-=(const basic_vector<RightTy, Dimension> &right)
-		{
-			for (dimension_type i = 0; i < dimension(); ++i)
-				left[i] -= right[i];
-			return *this;
-		}
-
-		template <typename RightTy>
-		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator-(const basic_vector<RightTy, Dimension> &right) const
-		{
-			basic_vector(*this) -= right;
-		}
-
-		basic_vector& operator*=(const value_type &right)
-		{
-			for (auto &comp : *this)
-				comp *= right;
-			return *this;
-		}
-
-		basic_vector operator*(const value_type &right) const
-		{
-			return basic_vector(*this) *= right;
-		}
-
-		basic_vector& operator/=(const value_type &right)
-		{
-			for (auto &comp : *this)
-				comp /= right;
-			return *this;
-		}
-
-		basic_vector operator/(const value_type &right) const
-		{
-			return basic_vector(*this) /= right;
-		}
-
-		template <typename RightTy>
-		bool operator==(const basic_vector<RightTy, Dimension> &right) const
-		{
-			for (dimension_type i = 0; i < dimension(); ++i)
-				if ((*this)[i] != right[i])
-					return false;
-			return true;
-		}
-
-		template <typename RightTy>
-		bool operator!=(const basic_vector<RightTy, Dimension> &right) const
-		{
-			return !(*this == right);
 		}
 	};
 
@@ -197,9 +216,9 @@ namespace linear_algebra
 
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
 	class basic_matrix
-		:public std::array<Ty, RowDimension * ColumnDimension>
+		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
-		typedef std::array<Ty, RowDimension * ColumnDimension> MyBase;
+		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
 	private:
 		using MyBase::operator[];
 
@@ -211,6 +230,8 @@ namespace linear_algebra
 
 		constexpr static bool _isSquare = RowDimension == ColumnDimension;
 	public:
+		using MyBase::_number_array;
+
 		basic_matrix()
 			:MyBase{}
 		{
@@ -253,44 +274,13 @@ namespace linear_algebra
 			return MyBase::at(_elemIndexAt(rowdimension, columndimension));
 		}
 
-		template <class Enabled = void>
-		basic_matrix& transpose_to_assign()
-		{
-			static_assert(false,
-				"Only square matrix may perform the transpose_to_assign function.");
-		}
-
-		template <>
-		basic_matrix& transpose_to_assign<std::enable_if_t<_isSquare>>()
-		{
-			_fillTransposeTo(*this);
-			return *this;
-		}
-
 		basic_matrix<Ty, ColumnDimension, RowDimension> transpose() const
 		{
 			basic_matrix<Ty, ColumnDimension, RowDimension> result;
-			_fillTransposeTo(result);
+			for (row_dimension_type r = 0; r < row_dimension(); ++r)
+				for (column_dimension_type c = 0; c < column_dimension(); ++c)
+					result[{ c, r }] = (*this)[{ r, c }];
 			return result;
-		}
-
-		template <class Enabled = void>
-		basic_matrix& inverse_to_assign()
-		{
-			static_assert(false,
-				"Only square matrix may perform the inverse or inverse_to_assign function.");
-		}
-
-		template <>
-		basic_matrix& inverse_to_assign<std::enable_if_t<_isSquare>>()
-		{
-			return *this;
-		}
-
-		template <class Enabled = void>
-		basic_matrix inverse() const
-		{
-			return basic_matrix(*this).inverse_to_assign();
 		}
 
 		template <typename RightTy, std::size_t RightColumnDimension>
@@ -315,17 +305,67 @@ namespace linear_algebra
 		{
 			return rowdimension * ColumnDimension + columndimension;
 		}
-
-		void _fillTransposeTo(basic_matrix<Ty, ColumnDimension, RowDimension> &dest) const
-		{
-			for (row_dimension_type r = 0; r < row_dimension(); ++r)
-				for (column_dimension_type c = 0; c < column_dimension(); ++c)
-					dest[{ r, c }] = (*this)[{ c, r }];
-		}
 	};
 
 	template <typename Ty, std::size_t Dimension>
-	using basic_square_matrix = basic_matrix<Ty, Dimension, Dimension>;
+	class basic_square_matrix
+		:public basic_matrix<Ty, Dimension, Dimension>
+	{
+		typedef basic_matrix<Ty, Dimension, Dimension> MyBase;
+	public:
+		using MyBase::basic_matrix;
+
+		typedef row_dimension_type dimension_type;
+
+		constexpr dimension_type dimension() const
+		{
+			return Dimension;
+		}
+
+		basic_square_matrix& transpose_to_assign()
+		{
+			return *this = transpose();
+		}
+
+		basic_square_matrix& inverse_to_assign()
+		{
+			return *this;
+		}
+
+		basic_square_matrix& inverse() const
+		{
+			return basic_square_matrix(*this).inverse_to_assign();
+		}
+
+		basic_square_matrix<Ty, Dimension - 1>
+			algebraic_cofactor(dimension_type r, dimension_type c) const
+		{
+			static_assert(Dimension > 0,
+				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
+
+			basic_square_matrix<Ty, Dimension - 1> result;
+
+			for (dimension_type i = 0; i < r; ++i)
+			{
+				for (dimension_type j = 0; j < c; ++j)
+					result[{ i, j }] = (*this)[{ i, j }];
+				if (c != std::numeric_limits<dimension_type>::max() - 1)
+					for (dimension_type j = c + 1; j < dimension(); ++j)
+						result[{ i, j - 1 }] = (*this)[{ i, j }];
+			}
+
+			if (r != std::numeric_limits<dimension_type>::max())
+				for (dimension_type i = r + 1; i < dimension(); ++i)
+				{
+					for (dimension_type j = 0; j < c; ++j)
+						result[{ i - 1, j }] = (*this)[{ i, j }];
+					if (c != std::numeric_limits<dimension_type>::max() - 1)
+						for (dimension_type j = c + 1; j < dimension(); ++j)
+							result[{ i - 1, j - 1 }] = (*this)[{ i, j }];
+				}
+			return result;
+		}
+	};
 
 	template <typename Ty>
 	using basic_square_matrix_2d = basic_square_matrix<Ty, 2>;
