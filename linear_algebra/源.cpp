@@ -14,6 +14,7 @@ int main()
 		std::cout << "v1 == v3\n";
 	if (+v1 != -v3)
 		std::cout << "+v1 != -v3\n";
+	v0[x_coord] = 0;
 
 	// vector normalize
 	vector_4d v4;

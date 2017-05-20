@@ -217,6 +217,8 @@ namespace linear_algebra
 
 	using vector_4d = basic_vector_4d<double>;
 
+	constexpr std::size_t x_coord = 0, y_coord = 1, z_coord = 2, w_coord = 3;
+
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
 	class basic_matrix
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
