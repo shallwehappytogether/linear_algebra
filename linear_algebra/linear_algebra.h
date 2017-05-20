@@ -233,12 +233,6 @@ namespace linear_algebra
 	public:
 		using MyBase::_number_array;
 
-		basic_matrix()
-			:MyBase{}
-		{
-
-		}
-
 		typedef std::size_t row_dimension_type;
 
 		typedef std::size_t column_dimension_type;
