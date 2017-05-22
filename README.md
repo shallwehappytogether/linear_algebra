@@ -4,6 +4,8 @@ A linear algebra library for C++.
 # Usage
 
 ```cpp
+#include <linear_algebra>
+
 using namespace lina;
 
 // vector construction
