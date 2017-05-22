@@ -7,7 +7,7 @@
 #include <cassert>
 #include <memory>
 
-namespace linear_algebra
+namespace lina
 {
 	namespace impl
 	{
@@ -212,8 +212,8 @@ namespace linear_algebra
 	*/
 	template <typename LeftTy, typename RightTy, std::size_t Dimension>
 	std::common_type_t<LeftTy, RightTy> angle_between(
-		const linear_algebra::basic_vector<LeftTy, Dimension> &left,
-		const linear_algebra::basic_vector<RightTy, Dimension> &right)
+		const lina::basic_vector<LeftTy, Dimension> &left,
+		const lina::basic_vector<RightTy, Dimension> &right)
 	{
 		auto lenprod = left.length() * right.length();
 		assert(lenprod != static_cast<Ty>(0) &&
@@ -253,10 +253,13 @@ namespace linear_algebra
 
 	using vector_4d = basic_vector_4d<double>;
 
-	/* CONSTEXPR VARIANBLES x_coord y_coord z_coord w_coord
-		Convention signs for x, y, z, w denotes of vector components.
-	*/
-	constexpr std::size_t x_coord = 0, y_coord = 1, z_coord = 2, w_coord = 3;
+	inline namespace convention
+	{
+		/* CONSTEXPR VARIANBLES x_coord y_coord z_coord w_coord
+			Convention signs for x, y, z, w denotes of vector components.
+		*/
+		constexpr std::size_t x_coord = 0, y_coord = 1, z_coord = 2, w_coord = 3;
+	}
 
 	/* TEMPLATE CLASS basic_matrix
 		The basic_matrix represents a mathematical matrix with [RowDimension] row and [ColumnDimension] column elements of type [Ty].
@@ -788,8 +791,8 @@ namespace std
 	*/
 	template <typename LeftTy, typename RightTy, std::size_t Dimension>
 	std::common_type_t<LeftTy, RightTy> inner_product(
-		const linear_algebra::basic_vector<LeftTy, Dimension> &left,
-		const linear_algebra::basic_vector<RightTy, Dimension> &right)
+		const lina::basic_vector<LeftTy, Dimension> &left,
+		const lina::basic_vector<RightTy, Dimension> &right)
 	{
 		std::common_type_t<LeftTy, RightTy> result = 0;
 		for (std::size_t i = 0; i != Dimension; ++i)
