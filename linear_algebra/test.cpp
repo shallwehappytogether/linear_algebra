@@ -64,6 +64,7 @@ int main()
 	vector_3d worldPosition = (translMatrix * rotMatrix * scaleMatrix * localPosition.homogeneous()).reduce();
 
 	// affine transform, treat vector as row vector
+	// yanyan
 	square_matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
 	vector_3d localPositionT;
 	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
