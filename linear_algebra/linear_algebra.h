@@ -196,6 +196,15 @@ namespace linear_algebra
 			result[result.dimension() - 1] = lastcomp;
 			return result;
 		}
+
+		// Return a vector whose [Comp]-th component has value 1 and other components are all 0.
+		template <dimension_type Comp>
+		static basic_vector basis()
+		{
+			basic_vector result{};
+			result[Comp] = 1;
+			return result;
+		}
 	};
 
 	/* TEMPLATE FUNCTION angle_between

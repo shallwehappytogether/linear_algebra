@@ -27,6 +27,11 @@ int main()
 	// vector cross product, only defined for 3d vectors
 	vector_3d v6 = cross_product(v1.reduce(), v2.reduce());
 
+	// make axis basis
+	auto xaxis = vector_3d::basis<x_coord>();
+	auto yaxis = vector_3d::basis<y_coord>();
+	auto zaxis = cross_product(xaxis, yaxis);
+
 	// matrix construction
 	square_matrix_4d m0; // zero matrix
 
