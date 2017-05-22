@@ -3,6 +3,7 @@ A linear algebra library for C++.
 
 # Usage
 
+```cpp
 using namespace lina;
 
 // vector construction
@@ -67,3 +68,4 @@ vector_3d worldPosition = (translMatrix * rotMatrix * scaleMatrix * localPositio
 square_matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
 vector_3d localPositionT;
 vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
+```
