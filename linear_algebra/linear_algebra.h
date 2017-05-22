@@ -56,7 +56,9 @@ namespace linear_algebra
 			_number_array<std::common_type_t<Ty, RightTy>, Size>
 				operator+(const _number_array<RightTy, Size> &right) const
 			{
-				_number_array(*this) += right;
+				typedef _number_array<std::common_type_t<Ty, RightTy>, Size>
+					resultTy;
+				return resultTy(*this) += right;
 			}
 
 			template <typename RightTy>
@@ -71,7 +73,9 @@ namespace linear_algebra
 			_number_array<std::common_type_t<Ty, RightTy>, Size>
 				operator-(const _number_array<RightTy, Size> &right) const
 			{
-				_number_array(*this) -= right;
+				typedef _number_array<std::common_type_t<Ty, RightTy>, Size>
+					resultTy;
+				return resultTy(*this) -= right;
 			}
 
 			_number_array& operator*=(const value_type &right)
@@ -115,8 +119,14 @@ namespace linear_algebra
 		};
 
 		constexpr bool _column_first_storage = false;
+
+
 	}
 
+	/* TEMPLATE CLASS basic_vector
+		The basic_vector represents a mathematical [Dimension] dimension vector with elements of type [Ty].
+		It underlying use a plain array with [Dimension] elements of type [Ty].
+	*/
 	template <typename Ty, std::size_t Dimension>
 	class basic_vector
 		:public impl::_number_array<Ty, Dimension>
@@ -124,13 +134,16 @@ namespace linear_algebra
 	public:
 		using impl::_number_array<Ty, Dimension>::_number_array;
 
+		// Large enough to hold dimension of this vector.
 		typedef std::size_t dimension_type;
 
+		// Equal to [Dimension].
 		constexpr dimension_type dimension() const
 		{
 			return Dimension;
 		}
 
+		// Return the square of length of this vector.
 		value_type length_square() const
 		{
 			value_type result = 0;
@@ -139,21 +152,26 @@ namespace linear_algebra
 			return result;
 		}
 
+		// Return the length of this vector.
 		value_type length() const
 		{
 			return std::sqrt(length_square());
 		}
 
+		// Let this vector be normalized vector of original one and return this vector.
 		basic_vector& normalize_to_assign()
 		{
 			return static_cast<basic_vector&>(*this /= length());
 		}
 
+		// Return a vector which is normalized vector of this vector.
 		basic_vector normalize() const
 		{
 			return basic_vector(*this).normalize_to_assign();
 		}
 
+		// Return a [Dimension - 1] dimensions vector
+		// as if the last component is removed from this vector.
 		basic_vector<Ty, Dimension - 1> reduce() const
 		{
 			static_assert(Dimension > 1,
@@ -165,6 +183,8 @@ namespace linear_algebra
 			return result;
 		}
 
+		// Return a [Dimension + 1] dimensions vector
+		// as if an component of value [lastcomp] is append to this vector.
 		basic_vector<Ty, Dimension + 1> homogeneous(Ty lastcomp = 1) const
 		{
 			static_assert(Dimension < std::numeric_limits<std::size_t>::max(),
@@ -178,10 +198,13 @@ namespace linear_algebra
 		}
 	};
 
-	template <typename Ty, std::size_t Dimension>
-	Ty angle_between(
-		const linear_algebra::basic_vector<Ty, Dimension> &left,
-		const linear_algebra::basic_vector<Ty, Dimension> &right)
+	/* TEMPLATE FUNCTION angle_between
+		Return the angle, in radius, of vectors [left] and [right].
+	*/
+	template <typename LeftTy, typename RightTy, std::size_t Dimension>
+	std::common_type_t<LeftTy, RightTy> angle_between(
+		const linear_algebra::basic_vector<LeftTy, Dimension> &left,
+		const linear_algebra::basic_vector<RightTy, Dimension> &right)
 	{
 		auto lenprod = left.length() * right.length();
 		assert(lenprod != static_cast<Ty>(0) &&
@@ -189,10 +212,14 @@ namespace linear_algebra
 		return std::acos(std::inner_product(left, right) / lenprod);
 	}
 
-	template <typename Ty>
-	basic_vector<Ty, 3> cross_product(
-		const basic_vector<Ty, 3> &left,
-		const basic_vector<Ty, 3> &right)
+	/* TEMPLATE FUNCTION cross_product
+		Return a vector which is cross product(also called vector product) of
+		3-dimension vectors [left] and [right].
+	*/
+	template <typename LeftTy, typename RightTy>
+	basic_vector<std::common_type_t<LeftTy, RightTy>, 3> cross_product(
+		const basic_vector<LeftTy, 3> &left,
+		const basic_vector<RightTy, 3> &right)
 	{
 		return
 		{
@@ -217,56 +244,117 @@ namespace linear_algebra
 
 	using vector_4d = basic_vector_4d<double>;
 
+	/* TEMPLATE CLASS basic_matrix
+		The basic_matrix represents a mathematical matrix with [RowDimension] row and [ColumnDimension] column elements of type [Ty].
+		It underlying use a plain array with [RowDimension] * [ColumnDimension] elements of type [Ty].
+
+		Matrix's elements are stored sequenced, no padding,
+		either row by row or column by column, which is implement-defined
+		and user shall not concern.
+
+		An element at row 'r' and column 'c' can also be located
+		using a pair of numeric value ('f', 's').
+		The 'f'('s') is defined to be 'r'('c'), if
+		elements in matrix are stored row by row, or be 'c'('r') otherwise.
+		The 'f' and 's' is called the first and secondnary seq-index of this element.
+
+		An Element with seq-index 'f' and 's' is the (f * secondnar_dimension() + s)-th element of underlying array.
+	*/
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
 	class basic_matrix
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
 		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
-	protected:
-		using MyBase::operator[];
-
-		using MyBase::at;
-
-		using MyBase::begin;
-
-		using MyBase::end;
+		constexpr static bool _rowFirstStorage = true;
 	public:
 		using MyBase::_number_array;
 
+		// Large enough to hold row dimension of this matrix.
 		typedef std::size_t row_dimension_type;
 
+		// Large enough to hold column dimension of this matrix.
 		typedef std::size_t column_dimension_type;
 
-		constexpr row_dimension_type row_dimension() const
+		// Equal to [RowDimension].
+		constexpr static row_dimension_type row_dimension()
 		{
 			return RowDimension;
 		}
 
-		constexpr column_dimension_type column_dimension() const
+		// Equal to [ColumnDimension].
+		constexpr static column_dimension_type column_dimension()
 		{
 			return ColumnDimension;
 		}
 
-		reference element_at(row_dimension_type rowdimension, column_dimension_type columndimension)
+		// Large enough to hold any first seq-index,
+		// or the one beyond the past of the largest first seq-index of this matrix.
+		typedef std::conditional_t<_rowFirstStorage, row_dimension_type, column_dimension_type>
+			first_dimension_type;
+
+		// Large enough to hold any secondary seq-index,
+		// or the one beyond the past of the largest secondary seq-index of this matrix.
+		typedef std::conditional_t<_rowFirstStorage, column_dimension_type, row_dimension_type>
+			secondary_dimension_type;
+
+		// The largest first seq-index.
+		constexpr static row_dimension_type first_dimension()
 		{
-			return MyBase::operator[](_elemIndexAt(rowdimension, columndimension));
+			return _rowFirstStorage ?
+				row_dimension() : column_dimension();
 		}
 
-		const_reference element_at(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		// The largest secondary seq-index.
+		constexpr static column_dimension_type secondary_dimension()
 		{
-			return MyBase::operator[](_elemIndexAt(rowdimension, columndimension));
+			return _rowFirstStorage ?
+				column_dimension() : row_dimension();
 		}
 
-		reference at(row_dimension_type rowdimension, column_dimension_type columndimension)
+		// Return the seq-index of element at row [r] and column [c].
+		static std::pair<first_dimension_type, secondary_dimension_type>
+			select_priority(row_dimension_type r, column_dimension_type c)
 		{
-			return MyBase::at(_elemIndexAt(rowdimension, columndimension));
+			return _rowFirstStorage ? { r, c } : { c, r };
 		}
 
-		const_reference at(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		// Return the reference to element at row [r] and column [c].
+		constexpr reference element_at(row_dimension_type r, column_dimension_type c)
 		{
-			return MyBase::at(_elemIndexAt(rowdimension, columndimension));
+			return MyBase::operator[](_elemIndexAt(r, c));
 		}
 
+		// Return the const reference to element at row [r] and column [c].
+		constexpr const_reference element_at(row_dimension_type r, column_dimension_type c) const
+		{
+			return MyBase::operator[](_elemIndexAt(r, c));
+		}
+
+		// Return the reference to element of seq-index [firstdim] and [secdim].
+		constexpr reference element_at_seq(first_dimension_type f, secondary_dimension_type s)
+		{
+			return (*this)[f * secondary_dimension() + s];
+		}
+
+		// Return the const reference to element of seq-index [firstdim] and [secdim].
+		constexpr const_reference element_at_seq(first_dimension_type f, secondary_dimension_type s) const
+		{
+			return (*this)[f * secondary_dimension() + s];
+		}
+
+		// Same as [element_at], but with boundary check.
+		constexpr reference at(row_dimension_type r, column_dimension_type c)
+		{
+			return MyBase::at(_elemIndexAt(r, c));
+		}
+
+		// Same as [element_at], but with boundary check.
+		constexpr const_reference at(row_dimension_type r, column_dimension_type c) const
+		{
+			return MyBase::at(_elemIndexAt(r, c));
+		}
+
+		// Return a matrix which is transpose matrix of this matrix.
 		basic_matrix<Ty, ColumnDimension, RowDimension> transpose() const
 		{
 			basic_matrix<Ty, ColumnDimension, RowDimension> result;
@@ -276,6 +364,7 @@ namespace linear_algebra
 			return result;
 		}
 
+		// Return a matrix which is the result of multiply this matrix by matrix [right];
 		template <typename RightTy, std::size_t RightColumnDimension>
 		basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
 			operator*(const basic_matrix<RightTy, RowDimension, RightColumnDimension> &right) const
@@ -308,6 +397,11 @@ namespace linear_algebra
 		}
 	};
 
+	/* TEMPLATE CLASS basic_square_matrix
+		The basic_square_matrix represents a mathematical square matrix with elements of type [Ty].
+		It is essential a derived class of basic_matrix
+		with [RowDimension] and [ColumnDimension] both equal to [Dimension].
+	*/
 	template <typename Ty, std::size_t Dimension>
 	class basic_square_matrix
 		:public basic_matrix<Ty, Dimension, Dimension>
@@ -316,41 +410,47 @@ namespace linear_algebra
 	public:
 		using MyBase::basic_matrix;
 
+		// Large enough to hold row dimension or column dimension of this matrix.
 		typedef row_dimension_type dimension_type;
 
+		// Equal to [Dimension].
 		constexpr static dimension_type dimension()
 		{
 			return Dimension;
 		}
 
+		// Let this matrix be transpose matrix of the orignal one and return this matrix.
 		basic_square_matrix& transpose_to_assign()
 		{
 			return *this = transpose();
 		}
 
+		// Let this matrix be adjoint matrix of the orignal one and return this matrix.
 		basic_square_matrix& adjoint_to_assign()
 		{
 			return *this = adjoint();
 		}
 
-		template <typename Enable = void>
+		// Return a matrix which is adjoint matrix of this matrix.
 		basic_square_matrix adjoint() const
 		{
 			basic_square_matrix result;
 			for (dimension_type r = 0; r < dimension(); ++r)
 				for (dimension_type c = 0; c < dimension(); ++c)
 				{
-					auto detFac = algebraic_cofactor(r, c).determinant();
-					result.element_at(c, r) = detFac;
+					auto detFac = algebraic_cofactor_seq(r, c).determinant();
+					result.element_at_seq(c, r) = detFac;
 				}
 			return result;
 		}
 
+		// Let this matrix be inverse matrix of the orignal one and return this matrix.
 		basic_square_matrix& inverse_to_assign()
 		{
 			return *this = inverse();
 		}
 
+		// Return a matrix which is inverse matrix of this matrix.
 		basic_square_matrix inverse() const
 		{
 			auto det = determinant();
@@ -361,90 +461,64 @@ namespace linear_algebra
 			return result;
 		}
 
+		// Return a matrix which is algebraic cofactor at row [r] and column [c] of the matrix.
 		basic_square_matrix<Ty, Dimension - 1>
 			algebraic_cofactor(dimension_type r, dimension_type c) const
 		{
 			static_assert(Dimension > 0,
 				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
+
+			typedef basic_square_matrix<Ty, Dimension - 1>
+				reusultTy;
+			auto seqdim = reusultTy::select_priority(r, c);
+			return algebraic_cofactor_seq(seqdim.first, seqdim.second);
+		}
+
+		// Return a matrix which is algebraic cofactor at seq-index [f] and [s] of the matrix.
+		basic_square_matrix<Ty, Dimension - 1>
+			algebraic_cofactor_seq(dimension_type f, dimension_type s) const
+		{
+			static_assert(Dimension > 0,
+				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
+
 			basic_square_matrix<Ty, Dimension - 1> result;
-			_saveCofactor(data(), dimension(), r, c, result.data());
+			_saveCofactorSeq(data(), dimension(), f, s, result.data());
 			return result;
 		}
 
-		template <typename HigherDimension = void>
+		// Return the determinant of the matrix.
 		value_type determinant() const
 		{
 			return _det_helper<Dimension>::get(*this);
 		}
-
 	private:
-		template <typename RowFirstStorage = void>
-		static void _saveCofactor(
+		static void _saveCofactorSeq(
 			const Ty *from,
 			size_type fromdim,
-			size_type r,
-			size_type c,
+			size_type first,
+			size_type second,
 			Ty *result)
 		{
+			auto elemAt = [=](auto r, auto c) { return from[r * fromdim + c]; };
+
 			size_type iOutput = 0;
-			for (size_type i = 0; i < r; ++i)
+			for (size_type i = 0; i < first; ++i)
 			{
-				for (size_type j = 0; j < c; ++j)
-					result[iOutput++] = from[i * fromdim + j];
-				if (c != std::numeric_limits<size_type>::max() - 1)
-					for (size_type j = c + 1; j < fromdim; ++j)
-						result[iOutput++] = from[i * fromdim + j];
+				for (size_type j = 0; j < second; ++j)
+					result[iOutput++] = elemAt(i, j);
+				if (second != std::numeric_limits<size_type>::max() - 1)
+					for (size_type j = second + 1; j < fromdim; ++j)
+						result[iOutput++] = elemAt(i, j);
 			}
-			if (r != std::numeric_limits<size_type>::max())
-				for (size_type i = r + 1; i < fromdim; ++i)
+			if (first != std::numeric_limits<size_type>::max())
+				for (size_type i = first + 1; i < fromdim; ++i)
 				{
-					for (size_type j = 0; j < c; ++j)
-						result[iOutput++] = from[i * fromdim + j];
-					if (c != std::numeric_limits<size_type>::max() - 1)
-						for (size_type j = c + 1; j < fromdim; ++j)
-							result[iOutput++] = from[i * fromdim + j];
+					for (size_type j = 0; j < second; ++j)
+						result[iOutput++] = elemAt(i, j);
+					if (second != std::numeric_limits<size_type>::max() - 1)
+						for (size_type j = second + 1; j < fromdim; ++j)
+							result[iOutput++] = elemAt(i, j);
 				}
-		}
-
-		template <>
-		static void _saveCofactor<std::enable_if_t<impl::_column_first_storage>>(
-			const Ty *from,
-			size_type fromdim,
-			size_type r,
-			size_type c,
-			Ty *result)
-		{
-			size_type iOutput = 0;
-			for (size_type i = 0; i < c; ++i)
-			{
-				for (size_type j = 0; j < r; ++j)
-					result[iOutput++] = from[j * fromdim + i];
-				if (r != std::numeric_limits<size_type>::max() - 1)
-					for (size_type j = r + 1; j < fromdim; ++j)
-						result[iOutput++] = from[j * fromdim + i];
-			}
-			if (c != std::numeric_limits<size_type>::max())
-				for (size_type i = c + 1; i < fromdim; ++i)
-				{
-					for (size_type j = 0; j < r; ++j)
-						result[iOutput++] = from[j * fromdim + i];
-					if (r != std::numeric_limits<size_type>::max() - 1)
-						for (size_type j = r + 1; j < fromdim; ++j)
-							result[iOutput++] = from[j * fromdim + i];
-				}
-		}
-
-		template <typename RowFirstStorage = void>
-		static inline Ty _getElment(const Ty *arr, dimension_type dim, dimension_type r, dimension_type c)
-		{
-			return arr[r * dim + c];
-		}
-
-		template <>
-		static inline Ty _getElment<std::enable_if_t<impl::_column_first_storage>>(
-			const Ty *arr, dimension_type dim, dimension_type r, dimension_type c)
-		{
-			return arr[c * dim + r];
 		}
 
 		static inline value_type _5dOrHigerDet(
@@ -455,7 +529,7 @@ namespace linear_algebra
 			if (dim == 4)
 				return _4dDet(arr);
 
-			auto elemAt = [=](auto r, auto c) { return _getElment(arr, dim, r, c); };
+			auto elemAt = [=](auto r, auto c) { return arr[r * dim + c]; };
 			Ty result = 0;
 			for (dimension_type i = 0; i < dimension(); ++i)
 			{
@@ -471,7 +545,7 @@ namespace linear_algebra
 		static inline value_type _2dDet(
 			const Ty *arr)
 		{
-			auto elemAt = [=](auto r, auto c) { return _getElment(arr, 2, r, c); };
+			auto elemAt = [=](auto r, auto c) { return arr[r * 2 + c]; };
 
 			return elemAt(0, 0) * elemAt(1, 1) -
 				elemAt(0, 1) * elemAt(1, 0);
@@ -489,7 +563,7 @@ namespace linear_algebra
 		static inline value_type _3dDet(
 			const Ty *arr)
 		{
-			auto elemAt = [=](auto r, auto c) { return _getElment(arr, 3, r, c); };
+			auto elemAt = [=](auto r, auto c) { return arr[r * 3 + c]; };
 
 			auto a = elemAt(0, 0);
 			auto b = elemAt(0, 1);
@@ -507,7 +581,7 @@ namespace linear_algebra
 		static inline value_type _4dDet(
 			const Ty *arr)
 		{
-			auto elemAt = [=] (auto r, auto c) { return _getElment(arr, 4, r, c); };
+			auto elemAt = [=](auto r, auto c) { return arr[r * 4 + c]; };
 
 			auto a = elemAt(0, 0);
 			auto b = elemAt(0, 1);
@@ -603,16 +677,23 @@ namespace linear_algebra
 
 	using square_matrix_4d = basic_square_matrix_4d<double>;
 
+	/* TEMPLATE FUNCTION make_identity_matrix
+		Return an identity [Dimension]x[Dimension] matrix with elements of [Ty].
+	*/
 	template <typename Ty, std::size_t Dimension>
 	basic_square_matrix<Ty, Dimension>
 		make_identity_matrix()
 	{
 		basic_square_matrix<Ty, Dimension> result;
-		for (decltype(result.row_dimension()) i = 0; i < result.row_dimension(); ++i)
-			result.element_at(i, i) = static_cast<Ty>(1);
+		for (decltype(result.dimension()) i = 0; i < result.dimension(); ++i)
+			result.element_at(i, i) = 1;
 		return result;
 	}
 
+	/* TEMPLATE FUNCTION matrix *= vector
+		Treate [vec] as a row vector.
+		Let [vec] be the result row vector of multiply [mat] by original [vec].
+	*/
 	template <typename VectorValueTy, typename MatrixTy,
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 	basic_vector<VectorValueTy, VectorDimension>&
@@ -630,6 +711,10 @@ namespace linear_algebra
 		return vec;
 	}
 
+	/* TEMPLATE FUNCTION matrix * vector
+		Treate [vec] as a row vector.
+		Return the result row vector of multiply [mat] by [vec].
+	*/
 	template <typename VectorValueTy, typename MatrixTy,
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 	basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
@@ -643,6 +728,10 @@ namespace linear_algebra
 		return mat *= resultType(vec);
 	}
 
+	/* TEMPLATE FUNCTION vector *= matrix
+		Treate [vec] as a column vector.
+		Let [vec] be the result column vector of multiply original [vec] by [mat].
+	*/
 	template <typename VectorValueTy, typename MatrixTy,
 		std::size_t VectorDimension, std::size_t MatrixRowDimension>
 	basic_vector<VectorValueTy, VectorDimension>
@@ -660,6 +749,10 @@ namespace linear_algebra
 		return vec;
 	}
 
+	/* TEMPLATE FUNCTION vector * matrix
+		Treate [vec] as a column vector.
+		Return the result column vector of multiply [vec] by [mat].
+	*/
 	template <typename VectorValueTy, typename MatrixTy,
 		std::size_t VectorDimension, std::size_t MatrixRowDimension>
 	basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
@@ -676,12 +769,15 @@ namespace linear_algebra
 
 namespace std
 {
-	template <typename Ty, std::size_t Dimension>
-	Ty inner_product(
-		const linear_algebra::basic_vector<Ty, Dimension> &left,
-		const linear_algebra::basic_vector<Ty, Dimension> &right)
+	/* TEMPLATE FUNCTION inner_product
+		Return the inner product(also called dot product) of vectors [left] and [right].
+	*/
+	template <typename LeftTy, typename RightTy, std::size_t Dimension>
+	std::common_type_t<LeftTy, RightTy> inner_product(
+		const linear_algebra::basic_vector<LeftTy, Dimension> &left,
+		const linear_algebra::basic_vector<RightTy, Dimension> &right)
 	{
-		Ty result = 0;
+		std::common_type_t<LeftTy, RightTy> result = 0;
 		for (std::size_t i = 0; i != Dimension; ++i)
 			result += (left[i] * right[i]);
 		return result;
