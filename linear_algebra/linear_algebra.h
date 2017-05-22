@@ -244,6 +244,11 @@ namespace linear_algebra
 
 	using vector_4d = basic_vector_4d<double>;
 
+	/* CONSTEXPR VARIANBLES x_coord y_coord z_coord w_coord
+		Convention signs for x, y, z, w denotes of vector components.
+	*/
+	constexpr std::size_t x_coord = 0, y_coord = 1, z_coord = 2, w_coord = 3;
+
 	/* TEMPLATE CLASS basic_matrix
 		The basic_matrix represents a mathematical matrix with [RowDimension] row and [ColumnDimension] column elements of type [Ty].
 		It underlying use a plain array with [RowDimension] * [ColumnDimension] elements of type [Ty].
