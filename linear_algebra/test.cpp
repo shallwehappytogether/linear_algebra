@@ -1,7 +1,7 @@
 
 #include "linear_algebra.h"
 #include <iostream>
-using namespace lina;
+using namespace lin;
 
 int main()
 {

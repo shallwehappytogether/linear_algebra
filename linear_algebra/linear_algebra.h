@@ -7,7 +7,7 @@
 #include <cassert>
 #include <memory>
 
-namespace lina
+namespace lin
 {
 	namespace impl
 	{
@@ -212,8 +212,8 @@ namespace lina
 	*/
 	template <typename LeftTy, typename RightTy, std::size_t Dimension>
 	std::common_type_t<LeftTy, RightTy> angle_between(
-		const lina::basic_vector<LeftTy, Dimension> &left,
-		const lina::basic_vector<RightTy, Dimension> &right)
+		const lin::basic_vector<LeftTy, Dimension> &left,
+		const lin::basic_vector<RightTy, Dimension> &right)
 	{
 		auto lenprod = left.length() * right.length();
 		assert(lenprod != static_cast<Ty>(0) &&
@@ -791,8 +791,8 @@ namespace std
 	*/
 	template <typename LeftTy, typename RightTy, std::size_t Dimension>
 	std::common_type_t<LeftTy, RightTy> inner_product(
-		const lina::basic_vector<LeftTy, Dimension> &left,
-		const lina::basic_vector<RightTy, Dimension> &right)
+		const lin::basic_vector<LeftTy, Dimension> &left,
+		const lin::basic_vector<RightTy, Dimension> &right)
 	{
 		std::common_type_t<LeftTy, RightTy> result = 0;
 		for (std::size_t i = 0; i != Dimension; ++i)
