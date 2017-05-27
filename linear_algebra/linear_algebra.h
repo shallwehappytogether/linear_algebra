@@ -197,34 +197,6 @@ namespace lin
 			return result;
 		}
 
-		class
-		{
-		public:
-			Ty& operator= (const Ty &v) { return (*this)[0] = v; }
-			operator Ty() const { return (*this)[0]; }
-		} x;
-
-		class
-		{
-		public:
-			Ty& operator= (const Ty &v) { return (*this)[1] = v; }
-			operator Ty() const { return (*this)[1]; }
-		} y;
-
-		class
-		{
-		public:
-			Ty& operator= (const Ty &v) { return (*this)[2] = v; }
-			operator Ty() const { return (*this)[2]; }
-		} z;
-
-		class
-		{
-		public:
-			Ty& operator= (const Ty &v) { return (*this)[3] = v; }
-			operator Ty() const { return (*this)[3]; }
-		} w;
-
 		// Return a vector whose [Comp]-th component has value 1 and other components are all 0.
 		template <dimension_type Comp>
 		static basic_vector basis()
