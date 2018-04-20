@@ -13,9 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\impl">
+      <UniqueIdentifier>{fea4714d-a36c-4949-90f9-9800745bb317}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="linear_algebra.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="impl\_number_array.h">
+      <Filter>头文件\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,8 +19,8 @@ int main()
 
 	// vector normalize
 	vector_4d v4;
-	auto v5 = v4.normalize(); // v4 itself is not affected
-	v4.normalize_to_assign(); // normalize v4 itself, so that v4 == v5 then
+	auto v5 = v4.normalized(); // v4 itself is not affected
+	v4.normalize(); // normalize v4 itself, so that v4 == v5 then
 
 	// vector dot product
 	auto dotv = std::inner_product(v1, v2);
@@ -41,13 +41,13 @@ int main()
 
 	// matrix transpose
 	square_matrix_4d m2;
-	square_matrix_4d m3 = m2.transpose(); // m2 itself is not affected
-	m2.transpose_to_assign(); // transpose m2 itself
+	square_matrix_4d m3 = m2.get_transpose(); // m2 itself is not affected
+	m2.transpose(); // transpose m2 itself
 
 	// matrix inverse
 	square_matrix_4d m4 = make_identity_matrix<double, 4>();
 	square_matrix_4d m5 = m4.inverse(); // m4 itself is not affected
-	m4.inverse_to_assign(); // inverse m4 itself
+	m4.invert(); // inverse m4 itself
 
 	// no inverse or inverse_to_assign or transpose_to_assign is
 	// defined for non-sqare matrix
