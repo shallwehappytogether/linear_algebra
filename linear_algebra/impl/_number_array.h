@@ -5,6 +5,161 @@
 
 namespace lin::impl
 {
+	template <typename Ty, std::size_t Size>
+	class _number_array_storage
+		:public std::array<Ty, Size>
+	{
+	public:
+		using std::array<Ty, Size>::array;
+	};
+
+	template <typename Ty>
+	class _number_array_storage<Ty, 1>
+	{
+	public:
+		_number_array_storage(const Ty &v = 0)
+			:x(v)
+		{
+		};
+
+		Ty* data()
+		{
+			return &x;
+		}
+
+		const Ty* data() const
+		{
+			return &x;
+		}
+
+		Ty x;
+	};
+
+	template <typename Ty>
+	class _number_array_storage<Ty, 2>
+	{
+	public:
+		_number_array_storage(const Ty &x_ = 0, const Ty &y_ = 0)
+			:x(x_), y(y_)
+		{
+		};
+
+		Ty* data()
+		{
+			return _array;
+		}
+
+		const Ty* data() const
+		{
+			return _array;
+		}
+
+		union
+		{
+			struct { Ty x, y; };
+			Ty _array[2];
+		};
+	};
+
+	template <typename Ty>
+	class _number_array_storage<Ty, 3>
+	{
+	public:
+		_number_array_storage(const Ty &x_ = 0, const Ty &y_ = 0, const Ty &z_ = 0)
+			:x(x_), y(y_), z(z_)
+		{
+		};
+
+		Ty* data()
+		{
+			return _array;
+		}
+
+		const Ty* data() const
+		{
+			return _array;
+		}
+
+		union
+		{
+			struct { Ty x, y, z; };
+			Ty _array[3];
+		};
+	};
+
+	template <typename Ty>
+	class _number_array_storage<Ty, 4>
+	{
+	public:
+		_number_array_storage(const Ty &x_ = 0, const Ty &y_ = 0, const Ty &z_ = 0, const Ty &w_ = 0)
+			:x(x_), y(y_), z(z_), w(w_)
+		{
+		};
+
+		Ty* data()
+		{
+			return _array;
+		}
+
+		const Ty* data() const
+		{
+			return _array;
+		}
+
+		union
+		{
+			struct { Ty x, y, z, w; };
+			Ty _array[4];
+		};
+	};
+
+	template <typename Ty, std::size_t Size>
+	class _number_array_base
+		:public _number_array_storage<Ty, Size>
+	{
+	public:
+		typedef Ty value_type;
+
+		typedef std::size_t size_type;
+
+		using _number_array_storage<Ty, Size>::_number_array_storage;
+
+		Ty & operator[](std::size_t i)
+		{
+			return data()[i];
+		}
+
+		const Ty& operator[](std::size_t i) const
+		{
+			return data()[i];
+		}
+
+		Ty* begin()
+		{
+			return data();
+		}
+
+		const Ty* begin() const
+		{
+			return data();
+		}
+
+		Ty* end()
+		{
+			return data() + Size;
+		}
+
+		const Ty* end() const
+		{
+			return data() + Size;
+		}
+
+		std::size_t size() const
+		{
+			return Size;
+		}
+	};
+
 	/* Common base class for vector and matrix.
 	The _number_array class represents an array of number.
 	It defines:
@@ -15,12 +170,12 @@ namespace lin::impl
 	*/
 	template <typename Ty, std::size_t Size>
 	class _number_array
-		:public std::array<Ty, Size>
+		:public _number_array_base<Ty, Size>
 	{
 	public:
 		template <typename... Args>
 		_number_array(Args... args)
-			:std::array<Ty, Size>{ static_cast<Ty>(args)... }
+			:_number_array_base{ static_cast<Ty>(args)... }
 		{
 
 		}

@@ -8,13 +8,13 @@ int main()
 	// vector construction
 	vector_4d v0; // zero vector
 	vector_4d v1{ 1, 2 }; // with components (1.0, 2.0, 0.0, 0.0)
+	std::cout << v1.y << " " << v1[1] << "\n";
 	vector_4d v2{ 1, 2, 3, 4 }; // with components (1.0, 2.0, 3.0, 4.0)
 	vector_4d v3(1, 2); // same as v1
 	if (v1 == v3)
 		std::cout << "v1 == v3\n";
 	if (+v1 != -v3)
 		std::cout << "+v1 != -v3\n";
-	v0[x_coord] = 0.;
 	std::cout << sizeof(v0) << "\n";
 
 	// vector normalize
