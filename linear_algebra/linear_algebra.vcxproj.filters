@@ -16,6 +16,9 @@
     <Filter Include="头文件\impl">
       <UniqueIdentifier>{fea4714d-a36c-4949-90f9-9800745bb317}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\graphic">
+      <UniqueIdentifier>{e21d9106-a344-4980-9dfa-451ac49c9a32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="linear_algebra.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="matrix.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic\transform.h">
+      <Filter>头文件\graphic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

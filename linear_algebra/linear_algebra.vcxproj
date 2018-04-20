@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="graphic\transform.h" />
     <ClInclude Include="impl\_number_array.h" />
     <ClInclude Include="linear_algebra.h" />
     <ClInclude Include="matrix.h" />
