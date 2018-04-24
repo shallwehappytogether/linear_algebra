@@ -1,6 +1,7 @@
 
-#include "linear_algebra.h"
-#include "graphic\transform.h"
+#include <linear_algebra/matrix.h>
+#include <linear_algebra/vector.h>
+#include <linear_algebra/graphic/transform.h>
 #include <iostream>
 using namespace lin;
 

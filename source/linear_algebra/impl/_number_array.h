@@ -117,6 +117,7 @@ namespace lin::impl
 	class _number_array_base
 		:public _number_array_storage<Ty, Size>
 	{
+		using MyBase = _number_array_storage<Ty, Size>;
 	public:
 		typedef Ty value_type;
 
@@ -126,32 +127,32 @@ namespace lin::impl
 
 		Ty & operator[](std::size_t i)
 		{
-			return data()[i];
+			return MyBase::data()[i];
 		}
 
 		const Ty& operator[](std::size_t i) const
 		{
-			return data()[i];
+			return MyBase::data()[i];
 		}
 
 		Ty* begin()
 		{
-			return data();
+			return MyBase::data();
 		}
 
 		const Ty* begin() const
 		{
-			return data();
+			return MyBase::data();
 		}
 
 		Ty* end()
 		{
-			return data() + Size;
+			return MyBase::data() + Size;
 		}
 
 		const Ty* end() const
 		{
-			return data() + Size;
+			return MyBase::data() + Size;
 		}
 
 		std::size_t size() const
@@ -172,10 +173,15 @@ namespace lin::impl
 	class _number_array
 		:public _number_array_base<Ty, Size>
 	{
+		using MyBase = _number_array_base<Ty, Size>;
 	public:
+		using value_type = typename MyBase::value_type;
+
+		using size_type = typename MyBase::size_type;
+
 		template <typename... Args>
 		_number_array(Args... args)
-			:_number_array_base{ static_cast<Ty>(args)... }
+			:MyBase{ static_cast<Ty>(args)... }
 		{
 
 		}
@@ -254,7 +260,7 @@ namespace lin::impl
 		template <typename RightTy>
 		bool operator==(const _number_array<RightTy, Size> &right) const
 		{
-			for (size_type i = 0; i < size(); ++i)
+			for (size_type i = 0; i < MyBase::size(); ++i)
 				if ((*this)[i] != right[i])
 					return false;
 			return true;

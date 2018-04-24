@@ -4,6 +4,7 @@
 #include "vector.h"
 #include <type_traits>
 #include <cassert>
+#include <memory>
 
 namespace lin
 {
@@ -18,14 +19,16 @@ namespace lin
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
 		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
+	protected:
+		using size_type = MyBase::size_type;
 	public:
 		using MyBase::_number_array;
 
 		// Large enough to hold row dimension of this matrix.
-		typedef std::size_t row_dimension_type;
+		using row_dimension_type = std::size_t;
 
 		// Large enough to hold column dimension of this matrix.
-		typedef std::size_t column_dimension_type;
+		using column_dimension_type = std::size_t;
 
 		// Equal to [RowDimension].
 		constexpr static row_dimension_type row_dimension()
@@ -40,25 +43,25 @@ namespace lin
 		}
 
 		// Return the reference to element at row [r] and column [c].
-		constexpr reference element_at(row_dimension_type r, column_dimension_type c)
+		constexpr Ty& element_at(row_dimension_type r, column_dimension_type c)
 		{
 			return MyBase::operator[](_elemIndex(r, c));
 		}
 
 		// Return the const reference to element at row [r] and column [c].
-		constexpr const_reference element_at(row_dimension_type r, column_dimension_type c) const
+		constexpr const Ty& element_at(row_dimension_type r, column_dimension_type c) const
 		{
 			return MyBase::operator[](_elemIndex(r, c));
 		}
 
 		// Same as [element_at], but with boundary check.
-		constexpr reference at(row_dimension_type r, column_dimension_type c)
+		constexpr Ty& at(row_dimension_type r, column_dimension_type c)
 		{
 			return MyBase::at(_elemIndex(r, c));
 		}
 
 		// Same as [element_at], but with boundary check.
-		constexpr const_reference at(row_dimension_type r, column_dimension_type c) const
+		constexpr const Ty& at(row_dimension_type r, column_dimension_type c) const
 		{
 			return MyBase::at(_elemIndex(r, c));
 		}
@@ -92,7 +95,7 @@ namespace lin
 			return result;
 		}
 	private:
-		size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		MyBase::size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
 		{
 			return columndimension * RowDimension + rowdimension;
 		}
@@ -112,7 +115,9 @@ namespace lin
 		using MyBase::basic_matrix;
 
 		// Large enough to hold row dimension or column dimension of this matrix.
-		typedef row_dimension_type dimension_type;
+		using dimension_type = MyBase::row_dimension_type;
+
+		using value_type = typename MyBase::value_type;
 
 		// Equal to [Dimension].
 		constexpr static dimension_type dimension()
@@ -133,7 +138,7 @@ namespace lin
 			for (dimension_type r = 0; r < dimension(); ++r)
 				for (dimension_type c = 0; c < dimension(); ++c)
 				{
-					result.element_at(c, r) = element_at(r, c);
+					result.element_at(c, r) = MyBase::element_at(r, c);
 				}
 			return result;
 		}
@@ -176,7 +181,7 @@ namespace lin
 				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
 
 			basic_square_matrix<Ty, Dimension - 1> result;
-			_cofactor(data(), dimension(), r, c, result.data());
+			_cofactor(MyBase::data(), dimension(), r, c, result.data());
 			return result;
 		}
 
@@ -186,27 +191,27 @@ namespace lin
 			if constexpr (Dimension == 1)
 				return data()[0];
 			else if constexpr (Dimension == 2)
-				return _det2(data());
+				return _det2(MyBase::data());
 			else if constexpr (Dimension == 3)
-				return _det3(data());
+				return _det3(MyBase::data());
 			else if constexpr (Dimension == 4)
-				return _det4(data());
+				return _det4(MyBase::data());
 			else
-				return _det(data(), Dimension);
+				return _det(MyBase::data(), Dimension);
 		}
 	private:
 		
 		// 存储[fromdim]阶行列式[from]的元素[dstr, dstc]的代数余子式到[result]中。
 		static void _cofactor(
 			const Ty *from,
-			size_type fromdim,
-			size_type dstr,
-			size_type dstc,
+			MyBase::size_type fromdim,
+			MyBase::size_type dstr,
+			MyBase::size_type dstc,
 			Ty *result)
 		{
 			assert(dstr < fromdim && dstc < fromdim);
 
-			size_type r = 0, c = 0, iOutput = 0;
+			typename MyBase::size_type r = 0, c = 0, iOutput = 0;
 
 			value_type fac = (dstr + dstr) % 2 == 0 ? 1 : -1;
 
@@ -383,7 +388,8 @@ namespace lin
 		typedef
 			basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
 			resultType;
-		return mat *= resultType(vec);
+		resultType result(vec);
+		return mat *= result;
 	}
 
 	/* TEMPLATE FUNCTION vector *= matrix
@@ -420,7 +426,8 @@ namespace lin
 	{
 		typedef
 			basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
-			resultType;
-		return resultType(vec) *= mat;
+			ResultType;
+		ResultType result(vec);
+		return result *= mat;
 	}
 }

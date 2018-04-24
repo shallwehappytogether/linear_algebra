@@ -1,6 +1,8 @@
 #pragma once
 
-#include "impl/_number_array.h"
+#include <linear_algebra/impl/_number_array.h>
+#include <cassert>
+#include <type_traits>
 
 namespace lin
 {
@@ -12,11 +14,14 @@ namespace lin
 	class basic_vector
 		:public impl::_number_array<Ty, Dimension>
 	{
+		using MyBase = impl::_number_array<Ty, Dimension>;
 	public:
-		using impl::_number_array<Ty, Dimension>::_number_array;
+		using MyBase::_number_array;
 
 		// Large enough to hold dimension of this vector.
-		typedef std::size_t dimension_type;
+		using dimension_type = std::size_t;
+
+		using value_type = typename MyBase::value_type;
 
 		// Equal to [Dimension].
 		constexpr static dimension_type dimension()
@@ -96,8 +101,9 @@ namespace lin
 		const lin::basic_vector<LeftTy, Dimension> &left,
 		const lin::basic_vector<RightTy, Dimension> &right)
 	{
+		using ResultTy = std::common_type_t<LeftTy, RightTy>;
 		auto lenprod = left.length() * right.length();
-		assert(lenprod != static_cast<Ty>(0) &&
+		assert(lenprod != static_cast<ResultTy>(0) &&
 			"Neither the first or the second operand of angle_between function can be zero vector.");
 		return std::acos(std::inner_product(left, right) / lenprod);
 	}
