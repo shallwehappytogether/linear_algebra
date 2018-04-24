@@ -203,6 +203,11 @@ namespace lin
 			else
 				return v_ * _mat;
 		}
+
+		const basic_square_matrix_4d<Ty>& matrix() const
+		{
+			return _mat;
+		}
 	private:
 		basic_square_matrix_4d<Ty> _mat;
 

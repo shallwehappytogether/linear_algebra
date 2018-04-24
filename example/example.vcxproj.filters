@@ -10,4 +10,9 @@
       <Filter>Basic usage</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="print.h">
+      <Filter>Basic usage</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
