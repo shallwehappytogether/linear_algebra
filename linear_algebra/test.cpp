@@ -70,7 +70,7 @@ int main()
 	vector_3d localPositionT;
 	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
 
-	auto m = lin::row_case::translation(vector_3d(1.0, 2.0, 3.0));
+	auto m = lin::row_vector::translation(vector_3d(1.0, 2.0, 3.0));
 
 	std::cout << "Bye!\n";
 }
