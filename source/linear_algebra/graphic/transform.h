@@ -46,19 +46,30 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const basic_vector_3d<Ty> &pos_)
 		{
+			return get(pos_.x, pos_.y, pos_.z);
+		}
+
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &x_,
+			const Ty &y_,
+			const Ty &z_)
+		{
 			auto i = make_identity_matrix<Ty, 4>();
-			fill(i, pos_);
+			fill(i, x_, y_, z_);
 			return i;
 		}
 
 		template <typename Ty>
 		static void fill(
 			basic_square_matrix_4d<Ty> &dest_,
-			const basic_vector_3d<Ty> &pos_)
+			const Ty &x_,
+			const Ty &y_,
+			const Ty &z_)
 		{
-			impl::set_supposed_r_v<VectorSystem>(dest_, 0, 3, pos_.x);
-			impl::set_supposed_r_v<VectorSystem>(dest_, 1, 3, pos_.y);
-			impl::set_supposed_r_v<VectorSystem>(dest_, 2, 3, pos_.z);
+			impl::set_supposed_r_v<VectorSystem>(dest_, 0, 3, x_);
+			impl::set_supposed_r_v<VectorSystem>(dest_, 1, 3, y_);
+			impl::set_supposed_r_v<VectorSystem>(dest_, 2, 3, z_);
 		}
 	};
 
@@ -69,10 +80,19 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const basic_vector_3d<Ty> &scale_)
 		{
+			return get(scale_.x, scale_.y, scale_.z);
+		}
+
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &x_,
+			const Ty &y_,
+			const Ty &z_)
+		{
 			auto i = make_identity_matrix<Ty, 4>();
-			i.element_at(0, 0) = scale_.x;
-			i.element_at(1, 1) = scale_.y;
-			i.element_at(2, 2) = scale_.z;
+			i.element_at(0, 0) = x_;
+			i.element_at(1, 1) = y_;
+			i.element_at(2, 2) = z_;
 			return i;
 		}
 	};
