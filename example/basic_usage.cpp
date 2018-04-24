@@ -71,7 +71,22 @@ int main()
 	vector_3d localPositionT;
 	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
 
-	auto m = lin::row_vector::translation(vector_3d(1.0, 2.0, 3.0));
+	auto m = lin::translating<lin::c_v>::get(vector_3d(1.0, 2.0, 3.0));
+
+	lin::transform<> parentTrans;
+	parentTrans.
+		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
+		then<lin::scalling>(vector_3d(1.0, 1.0, 1.0)).
+		then<lin::translating>(vector_3d(1.0, 2.0, 3.0));
+	lin::transform<> myTrans;
+	myTrans.
+		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
+		then<lin::scalling>(vector_3d(1.0, 1.0, 1.0)).
+		then<lin::translating>(vector_3d(1.0, 2.0, 3.0)).
+		then(parentTrans);
+	vector_3d vertex;
+	auto vertexTransformed = myTrans.apply(vertex.homogeneous()).reduce();
+
 
 	std::cout << "Bye!\n";
 }
