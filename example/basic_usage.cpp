@@ -80,12 +80,12 @@ int main()
 
 	using GLM_VEC_SYS = lin::c_v;
 
-	lin::transform<GLM_VEC_SYS> parentTrans;
+	lin::transform<double, GLM_VEC_SYS> parentTrans;
 	parentTrans.
 		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
 		then<lin::scalling>(1.0, 1.0, 1.0).
 		then<lin::translating>(1.0, 2.0, 3.0);
-	lin::transform<GLM_VEC_SYS> myTrans;
+	lin::transform<double, GLM_VEC_SYS> myTrans;
 	myTrans.
 		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
 		then<lin::scalling>(1.0, 1.0, 1.0).
