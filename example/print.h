@@ -7,7 +7,7 @@
 #include <glm\gtx\quaternion.hpp>
 #include <linear_algebra\quaternion.h>
 
-std::ostream& operator<<(std::ostream &os, const lin::square_matrix_4d &mat)
+std::ostream& operator<<(std::ostream &os, const lin::matrix_4d &mat)
 {
 	for (int i = 0; i < 4; ++i)
 	{

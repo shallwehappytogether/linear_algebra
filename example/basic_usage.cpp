@@ -43,19 +43,19 @@ int main()
 	auto zaxis = cross_product(xaxis, yaxis);
 
 	// matrix construction
-	square_matrix_4d m0; // zero matrix
+	matrix_4d m0; // zero matrix
 
 	// get an identity matrix
-	square_matrix_4d m1 = identity_matrix<double, 4>();
+	matrix_4d m1 = identity_matrix<double, 4>();
 
 	// matrix transpose
-	square_matrix_4d m2;
-	square_matrix_4d m3 = m2.get_transpose(); // m2 itself is not affected
+	matrix_4d m2;
+	matrix_4d m3 = m2.get_transpose(); // m2 itself is not affected
 	m2.transpose(); // transpose m2 itself
 
 	// matrix inverse
-	square_matrix_4d m4 = identity_matrix<double, 4>();
-	square_matrix_4d m5 = m4.inverse(); // m4 itself is not affected
+	matrix_4d m4 = identity_matrix<double, 4>();
+	matrix_4d m5 = m4.inverse(); // m4 itself is not affected
 	m4.invert(); // inverse m4 itself
 
 	// no inverse or inverse_to_assign or transpose_to_assign is
@@ -69,12 +69,12 @@ int main()
 	auto nonsqrmT = nonsqrm.transpose();
 
 	// affine transform, treat vector as column vector
-	square_matrix_4d translMatrix, rotMatrix, scaleMatrix;
+	matrix_4d translMatrix, rotMatrix, scaleMatrix;
 	vector_3d localPosition;
 	vector_3d worldPosition = (translMatrix * rotMatrix * scaleMatrix * localPosition.homogeneous()).reduce();
 
 	// affine transform, treat vector as row vector
-	square_matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
+	matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
 	vector_3d localPositionT;
 	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
 

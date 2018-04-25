@@ -339,20 +339,20 @@ namespace lin
 	template <std::size_t Dimension>
 	using square_matrix = basic_square_matrix<double, Dimension>;
 
-	using square_matrix_2d = basic_square_matrix_2d<double>;
+	using matrix_2d = basic_square_matrix_2d<double>;
 
-	using square_matrix_3d = basic_square_matrix_3d<double>;
+	using matrix_3d = basic_square_matrix_3d<double>;
 
-	using square_matrix_4d = basic_square_matrix_4d<double>;
+	using matrix_4d = basic_square_matrix_4d<double>;
 
 	template <std::size_t Dimension>
 	using square_matrix_f = basic_square_matrix<float, Dimension>;
 
-	using square_matrix_2f = basic_square_matrix_2d<float>;
+	using matrix_2f = basic_square_matrix_2d<float>;
 
-	using square_matrix_3f = basic_square_matrix_3d<float>;
+	using matrix_3f = basic_square_matrix_3d<float>;
 
-	using square_matrix_4f = basic_square_matrix_4d<float>;
+	using matrix_4f = basic_square_matrix_4d<float>;
 
 	/* TEMPLATE FUNCTION identity_matrix
 	Return an identity [Dimension]x[Dimension] matrix with elements of [Ty].
