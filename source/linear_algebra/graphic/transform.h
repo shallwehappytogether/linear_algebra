@@ -250,7 +250,7 @@ namespace lin
 		}
 	};
 
-	template <typename VectorSystem = default_vector_system, typename Ty = double>
+	template <typename Ty = double, typename VectorSystem = default_vector_system>
 	class transform
 	{
 	public:
