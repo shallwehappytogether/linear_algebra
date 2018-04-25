@@ -233,6 +233,40 @@ namespace lin::impl
 			return resultTy(*this) -= right;
 		}
 
+		template <typename RightTy>
+		_number_array& operator*=(const _number_array<RightTy, Size> &right)
+		{
+			for (size_type i = 0; i < size(); ++i)
+				(*this)[i] *= right[i];
+			return *this;
+		}
+
+		template <typename RightTy>
+		_number_array<std::common_type_t<Ty, RightTy>, Size>
+			operator*(const _number_array<RightTy, Size> &right) const
+		{
+			typedef _number_array<std::common_type_t<Ty, RightTy>, Size>
+				resultTy;
+			return resultTy(*this) *= right;
+		}
+
+		template <typename RightTy>
+		_number_array& operator/=(const _number_array<RightTy, Size> &right)
+		{
+			for (size_type i = 0; i < size(); ++i)
+				(*this)[i] -= right[i];
+			return *this;
+		}
+
+		template <typename RightTy>
+		_number_array<std::common_type_t<Ty, RightTy>, Size>
+			operator/(const _number_array<RightTy, Size> &right) const
+		{
+			typedef _number_array<std::common_type_t<Ty, RightTy>, Size>
+				resultTy;
+			return resultTy(*this) /= right;
+		}
+
 		_number_array& operator*=(const value_type &right)
 		{
 			for (auto &comp : *this)

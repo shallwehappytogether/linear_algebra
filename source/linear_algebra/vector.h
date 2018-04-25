@@ -119,6 +119,32 @@ namespace lin
 			return MyBase::operator-(right);
 		}
 
+		template <typename RightTy>
+		basic_vector& operator*=(const basic_vector<RightTy, Dimension> &right)
+		{
+			return static_cast<basic_vector&>(MyBase::operator*=(right));
+		}
+
+		template <typename RightTy>
+		basic_vector& operator/=(const basic_vector<RightTy, Dimension> &right)
+		{
+			return static_cast<basic_vector&>(MyBase::operator/=(right));
+		}
+
+		template <typename RightTy>
+		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
+			operator*(const _number_array<RightTy, Dimension> &right) const
+		{
+			return MyBase::operator*(right);
+		}
+
+		template <typename RightTy>
+		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
+			operator/(const _number_array<RightTy, Dimension> &right) const
+		{
+			return MyBase::operator/(right);
+		}
+
 		basic_vector& operator*=(const value_type &right)
 		{
 			return static_cast<basic_vector&>(MyBase::operator*=(right));
