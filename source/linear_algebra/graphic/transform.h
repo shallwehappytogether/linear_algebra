@@ -159,6 +159,95 @@ namespace lin
 			impl::set_c_v<VectorSystem>(i, 2, 2, cosa + u.z * u.z * xcosa);
 			return i;
 		}
+
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const basic_quaternion<Ty> &quat_)
+		{
+			auto q = quat_.get_normalized();
+			auto qx = q.x;
+			auto qy = q.y;
+			auto qz = q.z;
+			auto qw = q.w;
+			auto i = identity_matrix<Ty, 4>();
+			impl::set_c_v<VectorSystem>(i, 0, 0, 1 - 2 * (qy * qy + qz * qz));
+			impl::set_c_v<VectorSystem>(i, 0, 1, 2 * (qx * qy - qz * qw));
+			impl::set_c_v<VectorSystem>(i, 0, 2, 2 * (qx * qz + qy * qw));
+			impl::set_c_v<VectorSystem>(i, 1, 0, 2 * (qx * qy + qz * qw));
+			impl::set_c_v<VectorSystem>(i, 1, 1, 1 - 2 * (qx * qx + qz * qz));
+			impl::set_c_v<VectorSystem>(i, 1, 2, 2 * (qy * qz - qx * qw));
+			impl::set_c_v<VectorSystem>(i, 2, 0, 2 * (qx * qz - qy * qw));
+			impl::set_c_v<VectorSystem>(i, 2, 1, 2 * (qy * qz + qx * qw));
+			impl::set_c_v<VectorSystem>(i, 2, 2, 1 - 2 * (qx * qx + qy * qy));
+			return i;
+		}
+	};
+
+	template <typename VectorSystem = default_vector_system>
+	struct lookat_rhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const basic_vector_3d<Ty> &forward_,
+			const basic_vector_3d<Ty> &up_,
+			const basic_vector_3d<Ty> &pos_)
+		{
+			basic_square_matrix_4d<Ty> result;
+			auto orthoForward = forward_.get_normalized();
+			auto orthoSide = cross_product(forward_, up_).get_normalized();
+			auto orthoUp = cross_product(orthoSide, orthoForward);
+			impl::set_c_v<VectorSystem>(result, 0, 0, orthoSide.x);
+			impl::set_c_v<VectorSystem>(result, 0, 1, orthoSide.y);
+			impl::set_c_v<VectorSystem>(result, 0, 2, orthoSide.z);
+			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoSide));
+			impl::set_c_v<VectorSystem>(result, 1, 0, orthoUp.x);
+			impl::set_c_v<VectorSystem>(result, 1, 1, orthoUp.y);
+			impl::set_c_v<VectorSystem>(result, 1, 2, orthoUp.z);
+			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoUp));
+			// 因为是右手坐标系，z轴朝向应和视线方向相反。
+			impl::set_c_v<VectorSystem>(result, 2, 0, -orthoForward.x);
+			impl::set_c_v<VectorSystem>(result, 2, 1, -orthoForward.y);
+			impl::set_c_v<VectorSystem>(result, 2, 2, -orthoForward.z);
+			impl::set_c_v<VectorSystem>(result, 2, 3, std::inner_product(pos_, orthoForward));
+			impl::set_c_v<VectorSystem>(result, 3, 0, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 1, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 3, static_cast<Ty>(1));
+			return result;
+		}
+	};
+
+	template <typename VectorSystem = default_vector_system>
+	struct lookat_lhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const basic_vector_3d<Ty> &forward_,
+			const basic_vector_3d<Ty> &up_,
+			const basic_vector_3d<Ty> &pos_)
+		{
+			basic_square_matrix_4d<Ty> result;
+			auto orthoForward = forward_.get_normalized();
+			auto orthoSide = cross_product(forward_, up_).get_normalized();
+			auto orthoUp = cross_product(orthoSide, orthoForward);
+			impl::set_c_v<VectorSystem>(result, 0, 0, orthoSide.x);
+			impl::set_c_v<VectorSystem>(result, 0, 1, orthoSide.y);
+			impl::set_c_v<VectorSystem>(result, 0, 2, orthoSide.z);
+			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoSide));
+			impl::set_c_v<VectorSystem>(result, 1, 0, orthoUp.x);
+			impl::set_c_v<VectorSystem>(result, 1, 1, orthoUp.y);
+			impl::set_c_v<VectorSystem>(result, 1, 2, orthoUp.z);
+			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoUp));
+			impl::set_c_v<VectorSystem>(result, 2, 0, orthoForward.x);
+			impl::set_c_v<VectorSystem>(result, 2, 1, orthoForward.y);
+			impl::set_c_v<VectorSystem>(result, 2, 2, orthoForward.z);
+			impl::set_c_v<VectorSystem>(result, 2, 3, -std::inner_product(pos_, orthoForward));
+			impl::set_c_v<VectorSystem>(result, 3, 0, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 1, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(0));
+			impl::set_c_v<VectorSystem>(result, 3, 3, static_cast<Ty>(1));
+			return result;
+		}
 	};
 
 	template <typename VectorSystem = default_vector_system, typename Ty = double>
@@ -169,6 +258,11 @@ namespace lin
 			:_mat(identity_matrix<Ty, 4>())
 		{
 
+		}
+
+		void clear()
+		{
+			*this = transform();
 		}
 
 		transform& then(const transform &other_)

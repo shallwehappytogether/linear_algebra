@@ -136,5 +136,16 @@ int main()
 	std::cout << "\nGLM ROTATE RESULT\n" <<
 		quatGLM * glm::vec3(10, 9, 8) << "\n";
 
+	std::cout << "\nLIN ROTATE MATRIX\n" <<
+		lin::rotating<GLM_VEC_SYS>::get(quatLIN) << "\n";
+	std::cout << "\nGLM ROTATE MATRIX\n" <<
+		glm::mat4_cast(quatGLM) << "\n";
+
+
+	std::cout << "\nLIN LOOKAT MATRIX\n" <<
+		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{1, 2, 3}, vector_3d{0, 1, 0}, vector_3d{400, 300, 200}) << "\n";
+	std::cout << "\nGLM LOOKAT MATRIX\n" <<
+		glm::lookAtRH(glm::vec3{ 400, 300, 200 }, glm::vec3{ 400, 300, 200 } + glm::vec3{ 1, 2, 3 }, { 0, 1, 0 }) << "\n";
+
 	std::cout << "Bye!\n";
 }
