@@ -208,7 +208,7 @@ namespace lin
 			impl::set_c_v<VectorSystem>(result, 2, 0, -orthoZ.x);
 			impl::set_c_v<VectorSystem>(result, 2, 1, -orthoZ.y);
 			impl::set_c_v<VectorSystem>(result, 2, 2, -orthoZ.z);
-			impl::set_c_v<VectorSystem>(result, 2, 3, std::inner_product(pos_, orthoZ));
+			impl::set_c_v<VectorSystem>(result, 2, 3, -std::inner_product(pos_, -orthoZ));
 			impl::set_c_v<VectorSystem>(result, 3, 0, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 1, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(0));

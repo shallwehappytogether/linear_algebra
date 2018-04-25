@@ -22,6 +22,9 @@ int main()
 	if (+v1 != -v3)
 		std::cout << "+v1 != -v3\n";
 	std::cout << sizeof(v0) << "\n";
+	auto negv2 = -v2;
+
+	auto dv = v1 - v0;
 
 	// vector normalize
 	vector_4d v4;
