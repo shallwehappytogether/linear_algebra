@@ -107,14 +107,14 @@ namespace lin
 
 		template <typename RightTy>
 		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator+(const _number_array<RightTy, Dimension> &right) const
+			operator+(const basic_vector<RightTy, Dimension> &right) const
 		{
 			return MyBase::operator+(right);
 		}
 
 		template <typename RightTy>
 		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator-(const _number_array<RightTy, Dimension> &right) const
+			operator-(const basic_vector<RightTy, Dimension> &right) const
 		{
 			return MyBase::operator-(right);
 		}
@@ -133,14 +133,14 @@ namespace lin
 
 		template <typename RightTy>
 		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator*(const _number_array<RightTy, Dimension> &right) const
+			operator*(const basic_vector<RightTy, Dimension> &right) const
 		{
 			return MyBase::operator*(right);
 		}
 
 		template <typename RightTy>
 		basic_vector<std::common_type_t<Ty, RightTy>, Dimension>
-			operator/(const _number_array<RightTy, Dimension> &right) const
+			operator/(const basic_vector<RightTy, Dimension> &right) const
 		{
 			return MyBase::operator/(right);
 		}
