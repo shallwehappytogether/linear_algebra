@@ -175,21 +175,6 @@ namespace lin
 		}
 	};
 
-	/* TEMPLATE FUNCTION angle_between
-	Return the angle, in radius, of vectors [left] and [right].
-	*/
-	template <typename LeftTy, typename RightTy, std::size_t Dimension>
-	std::common_type_t<LeftTy, RightTy> angle_between(
-		const lin::basic_vector<LeftTy, Dimension> &left,
-		const lin::basic_vector<RightTy, Dimension> &right)
-	{
-		using ResultTy = std::common_type_t<LeftTy, RightTy>;
-		auto lenprod = left.length() * right.length();
-		assert(lenprod != static_cast<ResultTy>(0) &&
-			"Neither the first or the second operand of angle_between function can be zero vector.");
-		return std::acos(std::inner_product(left, right) / lenprod);
-	}
-
 	/* TEMPLATE FUNCTION cross_product
 	Return a vector which is cross product(also called vector product) of
 	3-dimension vectors [left] and [right].
@@ -253,5 +238,23 @@ namespace std
 		for (std::size_t i = 0; i != Dimension; ++i)
 			result += (left[i] * right[i]);
 		return result;
+	}
+}
+
+namespace lin
+{
+	/* TEMPLATE FUNCTION angle_between
+	Return the angle, in radius, of vectors [left] and [right].
+	*/
+	template <typename LeftTy, typename RightTy, std::size_t Dimension>
+	std::common_type_t<LeftTy, RightTy> angle_between(
+		const lin::basic_vector<LeftTy, Dimension> &left,
+		const lin::basic_vector<RightTy, Dimension> &right)
+	{
+		using ResultTy = std::common_type_t<LeftTy, RightTy>;
+		auto lenprod = left.length() * right.length();
+		assert(lenprod != static_cast<ResultTy>(0) &&
+			"Neither the first or the second operand of angle_between function can be zero vector.");
+		return std::acos(std::inner_product(left, right) / lenprod);
 	}
 }
