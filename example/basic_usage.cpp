@@ -128,7 +128,9 @@ int main()
 	std::cout << "\nLIN ROTATE\n" <<
 		lin::rotating<GLM_VEC_SYS>::get(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0)) << "\n";
 
-
+	quaternion_f q;
+	quaternion q2;
+	q = q2;
 	auto quatLIN = lin::rotation_quaternion(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0));
 	auto quatGLM = glm::angleAxis(glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0)));
 	std::cout << "\nLIN ROTATE\n" <<
