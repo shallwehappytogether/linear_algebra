@@ -125,6 +125,8 @@ namespace lin
 		};
 	}
 
+	// d means dimension not double....
+
 	template <typename Ty>
 	using basic_vector_2d = basic_vector<Ty, 2>;
 
@@ -139,6 +141,12 @@ namespace lin
 	using vector_3d = basic_vector_3d<double>;
 
 	using vector_4d = basic_vector_4d<double>;
+
+	using vector_2f = basic_vector_2d<float>;
+
+	using vector_3f = basic_vector_3d<float>;
+
+	using vector_4f = basic_vector_4d<float>;
 
 	inline namespace convention
 	{

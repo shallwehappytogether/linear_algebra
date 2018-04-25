@@ -22,6 +22,10 @@
     <ClCompile Include="basic_usage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\source\linear_algebra\graphic\transform.h" />
+    <ClInclude Include="..\source\linear_algebra\matrix.h" />
+    <ClInclude Include="..\source\linear_algebra\trigonometry.h" />
+    <ClInclude Include="..\source\linear_algebra\vector.h" />
     <ClInclude Include="print.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -4,6 +4,12 @@
     <Filter Include="Basic usage">
       <UniqueIdentifier>{e72eebed-e5dd-43cf-a3dc-790f16bda737}</UniqueIdentifier>
     </Filter>
+    <Filter Include="linear_algebra">
+      <UniqueIdentifier>{01704086-67e8-4b06-8727-a6fb0d9d0a78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linear_algebra\graphic">
+      <UniqueIdentifier>{24ca48fd-69b2-4606-9003-91f838466e84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basic_usage.cpp">
@@ -13,6 +19,18 @@
   <ItemGroup>
     <ClInclude Include="print.h">
       <Filter>Basic usage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\matrix.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\trigonometry.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\vector.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\graphic\transform.h">
+      <Filter>linear_algebra\graphic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
