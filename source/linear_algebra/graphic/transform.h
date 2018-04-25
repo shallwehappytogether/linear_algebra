@@ -188,27 +188,27 @@ namespace lin
 	{
 		template <typename Ty>
 		static basic_square_matrix_4d<Ty> get(
-			const basic_vector_3d<Ty> &forward_,
-			const basic_vector_3d<Ty> &up_,
-			const basic_vector_3d<Ty> &pos_)
+			const basic_vector_3d<Ty> &pos_,
+			const basic_vector_3d<Ty> &expectedz_,
+			const basic_vector_3d<Ty> &expectedy_)
 		{
 			basic_square_matrix_4d<Ty> result;
-			auto orthoForward = forward_.get_normalized();
-			auto orthoSide = cross_product(forward_, up_).get_normalized();
-			auto orthoUp = cross_product(orthoSide, orthoForward);
-			impl::set_c_v<VectorSystem>(result, 0, 0, orthoSide.x);
-			impl::set_c_v<VectorSystem>(result, 0, 1, orthoSide.y);
-			impl::set_c_v<VectorSystem>(result, 0, 2, orthoSide.z);
-			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoSide));
-			impl::set_c_v<VectorSystem>(result, 1, 0, orthoUp.x);
-			impl::set_c_v<VectorSystem>(result, 1, 1, orthoUp.y);
-			impl::set_c_v<VectorSystem>(result, 1, 2, orthoUp.z);
-			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoUp));
+			auto orthoZ = expectedz_.get_normalized();
+			auto orthoX = cross_product(expectedz_, expectedy_).get_normalized();
+			auto orthoY = cross_product(orthoX, orthoZ);
+			impl::set_c_v<VectorSystem>(result, 0, 0, orthoX.x);
+			impl::set_c_v<VectorSystem>(result, 0, 1, orthoX.y);
+			impl::set_c_v<VectorSystem>(result, 0, 2, orthoX.z);
+			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoX));
+			impl::set_c_v<VectorSystem>(result, 1, 0, orthoY.x);
+			impl::set_c_v<VectorSystem>(result, 1, 1, orthoY.y);
+			impl::set_c_v<VectorSystem>(result, 1, 2, orthoY.z);
+			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoY));
 			// 因为是右手坐标系，z轴朝向应和视线方向相反。
-			impl::set_c_v<VectorSystem>(result, 2, 0, -orthoForward.x);
-			impl::set_c_v<VectorSystem>(result, 2, 1, -orthoForward.y);
-			impl::set_c_v<VectorSystem>(result, 2, 2, -orthoForward.z);
-			impl::set_c_v<VectorSystem>(result, 2, 3, std::inner_product(pos_, orthoForward));
+			impl::set_c_v<VectorSystem>(result, 2, 0, -orthoZ.x);
+			impl::set_c_v<VectorSystem>(result, 2, 1, -orthoZ.y);
+			impl::set_c_v<VectorSystem>(result, 2, 2, -orthoZ.z);
+			impl::set_c_v<VectorSystem>(result, 2, 3, std::inner_product(pos_, orthoZ));
 			impl::set_c_v<VectorSystem>(result, 3, 0, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 1, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(0));
@@ -222,26 +222,26 @@ namespace lin
 	{
 		template <typename Ty>
 		static basic_square_matrix_4d<Ty> get(
-			const basic_vector_3d<Ty> &forward_,
-			const basic_vector_3d<Ty> &up_,
-			const basic_vector_3d<Ty> &pos_)
+			const basic_vector_3d<Ty> &pos_,
+			const basic_vector_3d<Ty> &expectedz_,
+			const basic_vector_3d<Ty> &expectedy_)
 		{
 			basic_square_matrix_4d<Ty> result;
-			auto orthoForward = forward_.get_normalized();
-			auto orthoSide = cross_product(forward_, up_).get_normalized();
-			auto orthoUp = cross_product(orthoSide, orthoForward);
-			impl::set_c_v<VectorSystem>(result, 0, 0, orthoSide.x);
-			impl::set_c_v<VectorSystem>(result, 0, 1, orthoSide.y);
-			impl::set_c_v<VectorSystem>(result, 0, 2, orthoSide.z);
-			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoSide));
-			impl::set_c_v<VectorSystem>(result, 1, 0, orthoUp.x);
-			impl::set_c_v<VectorSystem>(result, 1, 1, orthoUp.y);
-			impl::set_c_v<VectorSystem>(result, 1, 2, orthoUp.z);
-			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoUp));
-			impl::set_c_v<VectorSystem>(result, 2, 0, orthoForward.x);
-			impl::set_c_v<VectorSystem>(result, 2, 1, orthoForward.y);
-			impl::set_c_v<VectorSystem>(result, 2, 2, orthoForward.z);
-			impl::set_c_v<VectorSystem>(result, 2, 3, -std::inner_product(pos_, orthoForward));
+			auto orthoZ = expectedz_.get_normalized();
+			auto orthoX = cross_product(expectedy_, expectedz_).get_normalized();
+			auto orthoY = cross_product(orthoZ, orthoX);
+			impl::set_c_v<VectorSystem>(result, 0, 0, orthoX.x);
+			impl::set_c_v<VectorSystem>(result, 0, 1, orthoX.y);
+			impl::set_c_v<VectorSystem>(result, 0, 2, orthoX.z);
+			impl::set_c_v<VectorSystem>(result, 0, 3, -std::inner_product(pos_, orthoX));
+			impl::set_c_v<VectorSystem>(result, 1, 0, orthoY.x);
+			impl::set_c_v<VectorSystem>(result, 1, 1, orthoY.y);
+			impl::set_c_v<VectorSystem>(result, 1, 2, orthoY.z);
+			impl::set_c_v<VectorSystem>(result, 1, 3, -std::inner_product(pos_, orthoY));
+			impl::set_c_v<VectorSystem>(result, 2, 0, orthoZ.x);
+			impl::set_c_v<VectorSystem>(result, 2, 1, orthoZ.y);
+			impl::set_c_v<VectorSystem>(result, 2, 2, orthoZ.z);
+			impl::set_c_v<VectorSystem>(result, 2, 3, -std::inner_product(pos_, orthoZ));
 			impl::set_c_v<VectorSystem>(result, 3, 0, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 1, static_cast<Ty>(0));
 			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(0));

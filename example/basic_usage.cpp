@@ -143,9 +143,8 @@ int main()
 
 
 	std::cout << "\nLIN LOOKAT MATRIX\n" <<
-		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{1, 2, 3}, vector_3d{0, 1, 0}, vector_3d{400, 300, 200}) << "\n";
+		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{ 400, 300, 200 }, vector_3d{1, 2, 3}, vector_3d{0, 1, 0}) << "\n";
 	std::cout << "\nGLM LOOKAT MATRIX\n" <<
 		glm::lookAtRH(glm::vec3{ 400, 300, 200 }, glm::vec3{ 400, 300, 200 } + glm::vec3{ 1, 2, 3 }, { 0, 1, 0 }) << "\n";
-
 	std::cout << "Bye!\n";
 }
