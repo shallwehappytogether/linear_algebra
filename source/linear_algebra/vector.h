@@ -18,6 +18,8 @@ namespace lin
 	public:
 		using MyBase::_number_array;
 
+		using MyBase::operator=;
+
 		// Large enough to hold dimension of this vector.
 		using dimension_type = std::size_t;
 

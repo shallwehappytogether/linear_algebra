@@ -11,6 +11,23 @@ namespace lin::impl
 	{
 	public:
 		using std::array<Ty, Size>::array;
+
+		_number_array_storage() = default;
+
+		template <typename OtherTy>
+		_number_array_storage(const _number_array_storage<Ty, Size> &other_)
+		{
+			for (decltype(Size) i = 0; i < Size; ++i)
+				(*this)[i] = other_[i];
+		}
+
+		template <typename OtherTy>
+		_number_array_storage& operator=(const _number_array_storage<Ty, Size> &other_)
+		{
+			for (decltype(Size) i = 0; i < Size; ++i)
+				(*this)[i] = other_[i];
+			return *this;
+		}
 	};
 
 	template <typename Ty>
@@ -20,7 +37,13 @@ namespace lin::impl
 		_number_array_storage(const Ty &v = 0)
 			:x(v)
 		{
-		};
+		}
+
+		template <typename OtherTy>
+		_number_array_storage(const _number_array_storage<OtherTy, 1> &other_)
+			:x(other_.x)
+		{
+		}
 
 		Ty* data()
 		{
@@ -43,6 +66,12 @@ namespace lin::impl
 			:x(x_), y(y_)
 		{
 		};
+
+		template <typename OtherTy>
+		_number_array_storage(const _number_array_storage<OtherTy, 2> &other_)
+			:x(other_.x), y(other_.y)
+		{
+		}
 
 		Ty* data()
 		{
@@ -70,6 +99,12 @@ namespace lin::impl
 		{
 		};
 
+		template <typename OtherTy>
+		_number_array_storage(const _number_array_storage<OtherTy, 3> &other_)
+			:x(other_.x), y(other_.y), z(other_.z)
+		{
+		}
+
 		Ty* data()
 		{
 			return _array;
@@ -95,6 +130,12 @@ namespace lin::impl
 			:x(x_), y(y_), z(z_), w(w_)
 		{
 		};
+
+		template <typename OtherTy>
+		_number_array_storage(const _number_array_storage<OtherTy, 4> &other_)
+			:x(other_.x), y(other_.y), z(other_.z), w(other_.w)
+		{
+		}
 
 		Ty* data()
 		{
@@ -179,12 +220,9 @@ namespace lin::impl
 
 		using size_type = typename MyBase::size_type;
 
-		template <typename... Args>
-		_number_array(Args... args)
-			:MyBase{ static_cast<Ty>(args)... }
-		{
+		using MyBase::_number_array_base;
 
-		}
+		using MyBase::operator=;
 
 		_number_array operator+() const
 		{

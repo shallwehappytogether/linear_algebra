@@ -15,6 +15,8 @@ namespace lin
 
 		using MyBase::_number_array;
 
+		using MyBase::operator=;
+
 		// 计算该四元数的范数。
 		value_type norm() const
 		{

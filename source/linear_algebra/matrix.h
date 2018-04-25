@@ -24,6 +24,8 @@ namespace lin
 	public:
 		using MyBase::_number_array;
 
+		using MyBase::operator=;
+
 		// Large enough to hold row dimension of this matrix.
 		using row_dimension_type = std::size_t;
 
@@ -113,6 +115,8 @@ namespace lin
 		typedef basic_matrix<Ty, Dimension, Dimension> MyBase;
 	public:
 		using MyBase::basic_matrix;
+
+		using MyBase::operator=;
 
 		// Large enough to hold row dimension or column dimension of this matrix.
 		using dimension_type = MyBase::row_dimension_type;

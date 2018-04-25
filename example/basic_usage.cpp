@@ -24,6 +24,8 @@ int main()
 	std::cout << sizeof(v0) << "\n";
 	auto negv2 = -v2;
 
+	vector_4f v00 = v0;
+
 	auto dv = v1 - v0;
 
 	// vector normalize
