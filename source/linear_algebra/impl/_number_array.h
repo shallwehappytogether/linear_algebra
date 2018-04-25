@@ -17,8 +17,7 @@ namespace lin::impl
 		template <typename OtherTy>
 		_number_array_storage(const _number_array_storage<Ty, Size> &other_)
 		{
-			for (decltype(Size) i = 0; i < Size; ++i)
-				(*this)[i] = other_[i];
+			*this = other_;
 		}
 
 		template <typename OtherTy>
