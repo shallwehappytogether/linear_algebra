@@ -2,6 +2,7 @@
 #include <linear_algebra/matrix.h>
 #include <linear_algebra/vector.h>
 #include <linear_algebra/graphic/transform.h>
+#include <linear_algebra/trigonometry.h>
 #include <iostream>
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
@@ -74,14 +75,14 @@ int main()
 	vector_3d localPositionT;
 	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
 
-	auto m = lin::translating<>::get(vector_3d(1.0, 2.0, 3.0));
+	using GLM_VEC_SYS = lin::c_v;
 
-	lin::transform<r_v> parentTrans;
+	lin::transform<GLM_VEC_SYS> parentTrans;
 	parentTrans.
 		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
 		then<lin::scalling>(1.0, 1.0, 1.0).
 		then<lin::translating>(1.0, 2.0, 3.0);
-	lin::transform<r_v> myTrans;
+	lin::transform<GLM_VEC_SYS> myTrans;
 	myTrans.
 		then<lin::rotating>(radius(45.0), vector_3d(1.0, 1.0, 1.0)).
 		then<lin::scalling>(1.0, 1.0, 1.0).
@@ -90,35 +91,37 @@ int main()
 	vector_3d vertex;
 	auto vertexTransformed = myTrans.apply(vertex.homogeneous()).reduce();
 
-	std::cout << "\nLIN\n" << parentTrans.matrix() << "\n";
+	std::cout << "\nLIN TRANS\n" << parentTrans.matrix() << "\n";
 
 
 	glm::mat4 parentTransGLM;
 	parentTransGLM = glm::translate(parentTransGLM, glm::vec3(1.0, 2.0, 3.0));
 	parentTransGLM = glm::scale(parentTransGLM, glm::vec3(1.0, 1.0, 1.0));
 	parentTransGLM = glm::rotate(parentTransGLM, glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0)));
-	std::cout << "\nGLM\n" << parentTransGLM << "\n";
+	std::cout << "\nGLM TRANS\n" << parentTransGLM << "\n";
 
+	std::cout << "\nLIN INVTRANS\n" << parentTrans.matrix().inverse() << "\n";
+	std::cout << "\nGLM INVTRANS\n" << glm::inverse(parentTransGLM) << "\n";
 
 	std::cout << "\nGLM TRANSLATE\n" <<
 		glm::translate(glm::mat4(), glm::vec3(4.0, 5.0, 6.0)) << "\n";
 
 	std::cout << "\nLIN TRANSLATE\n" <<
-		lin::translating<lin::r_v>::get(lin::vector_3d(4.0, 5.0, 6.0)) << "\n";
+		lin::translating<GLM_VEC_SYS>::get(lin::vector_3d(4.0, 5.0, 6.0)) << "\n";
 
 
 	std::cout << "\nGLM SCALE\n" <<
 		glm::scale(glm::mat4(), glm::vec3(2.0, 2.0, 2.0)) << "\n";
 
 	std::cout << "\nLIN SCALE\n" <<
-		lin::scalling<lin::r_v>::get(lin::vector_3d(2.0, 2.0, 2.0)) << "\n";
+		lin::scalling<GLM_VEC_SYS>::get(lin::vector_3d(2.0, 2.0, 2.0)) << "\n";
 
 
 	std::cout << "\nGLM ROTATE\n" <<
 		glm::rotate(glm::mat4(), glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0))) << "\n";
 
 	std::cout << "\nLIN ROTATE\n" <<
-		lin::rotating<lin::r_v>::get(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0)) << "\n";
+		lin::rotating<GLM_VEC_SYS>::get(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0)) << "\n";
 
 	std::cout << "Bye!\n";
 }

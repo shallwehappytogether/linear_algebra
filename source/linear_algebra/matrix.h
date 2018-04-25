@@ -45,13 +45,13 @@ namespace lin
 		// Return the reference to element at row [r] and column [c].
 		constexpr Ty& element_at(row_dimension_type r, column_dimension_type c)
 		{
-			return MyBase::operator[](_elemIndex(r, c));
+			return (*this)[_elemIndex(r, c)];
 		}
 
 		// Return the const reference to element at row [r] and column [c].
 		constexpr const Ty& element_at(row_dimension_type r, column_dimension_type c) const
 		{
-			return MyBase::operator[](_elemIndex(r, c));
+			return (*this)[_elemIndex(r, c)];
 		}
 
 		// Same as [element_at], but with boundary check.
@@ -95,7 +95,7 @@ namespace lin
 			return result;
 		}
 	private:
-		MyBase::size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		inline MyBase::size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
 		{
 			return columndimension * RowDimension + rowdimension;
 		}
@@ -213,7 +213,12 @@ namespace lin
 
 			typename MyBase::size_type r = 0, c = 0, iOutput = 0;
 
-			value_type fac = (dstr + dstr) % 2 == 0 ? 1 : -1;
+			// µÈ¼ÛÓÚ
+			// value_type fac = (dstr + dstc) % 2 == 0 ? 1 : -1;
+			auto x = (dstr + dstc) % 2; // 0 or 1
+			x = x << 1; // 0 or 2
+			int faci = 1 - static_cast<int>(x); // 1 or -1
+			value_type fac = faci;
 
 			auto writeElem = [&]() { result[iOutput++] = from[c * fromdim + r] * fac; };
 

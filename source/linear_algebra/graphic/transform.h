@@ -5,18 +5,6 @@
 
 namespace lin
 {
-	template <typename Ty>
-	Ty radius(const Ty &deg_)
-	{
-		return deg_ / 180.0 * 3.14159265;
-	}
-
-	template <typename Ty>
-	Ty degrees(const Ty &rad_)
-	{
-		return rad_ / 3.14159265 * 180.0;
-	}
-
 	struct r_v {};
 
 	struct c_v {};
@@ -26,13 +14,13 @@ namespace lin
 	namespace impl
 	{
 		template <typename VectorSystem, typename Ty>
-		static inline void set_supposed_r_v(
+		static inline void set_c_v(
 			basic_square_matrix_4d<Ty> &m,
 			typename basic_square_matrix_4d<Ty>::dimension_type r,
 			typename basic_square_matrix_4d<Ty>::dimension_type c,
 			const Ty &val_)
 		{
-			if constexpr (std::is_same_v<VectorSystem, r_v>)
+			if constexpr (std::is_same_v<VectorSystem, c_v>)
 				m.element_at(r, c) = val_;
 			else
 				m.element_at(c, r) = val_;
@@ -67,9 +55,9 @@ namespace lin
 			const Ty &y_,
 			const Ty &z_)
 		{
-			impl::set_supposed_r_v<VectorSystem>(dest_, 0, 3, x_);
-			impl::set_supposed_r_v<VectorSystem>(dest_, 1, 3, y_);
-			impl::set_supposed_r_v<VectorSystem>(dest_, 2, 3, z_);
+			impl::set_c_v<VectorSystem>(dest_, 0, 3, x_);
+			impl::set_c_v<VectorSystem>(dest_, 1, 3, y_);
+			impl::set_c_v<VectorSystem>(dest_, 2, 3, z_);
 		}
 	};
 
@@ -106,10 +94,10 @@ namespace lin
 		{
 			auto i = make_identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 1, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 2, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 2, -sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 1, sina);
+			impl::set_c_v<VectorSystem>(i, 1, 1, cosa);
+			impl::set_c_v<VectorSystem>(i, 2, 2, cosa);
+			impl::set_c_v<VectorSystem>(i, 1, 2, -sina);
+			impl::set_c_v<VectorSystem>(i, 2, 1, sina);
 			return i;
 		}
 	};
@@ -123,10 +111,10 @@ namespace lin
 		{
 			auto i = make_identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 0, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 2, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 2, sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 0, -sina);
+			impl::set_c_v<VectorSystem>(i, 0, 0, cosa);
+			impl::set_c_v<VectorSystem>(i, 2, 2, cosa);
+			impl::set_c_v<VectorSystem>(i, 0, 2, sina);
+			impl::set_c_v<VectorSystem>(i, 2, 0, -sina);
 			return i;
 		}
 	};
@@ -140,10 +128,10 @@ namespace lin
 		{
 			auto i = make_identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 0, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 1, cosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 1, -sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 0, sina);
+			impl::set_c_v<VectorSystem>(i, 0, 0, cosa);
+			impl::set_c_v<VectorSystem>(i, 1, 1, cosa);
+			impl::set_c_v<VectorSystem>(i, 0, 1, -sina);
+			impl::set_c_v<VectorSystem>(i, 1, 0, sina);
 			return i;
 		}
 	};
@@ -159,15 +147,15 @@ namespace lin
 			auto i = make_identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
 			Ty xcosa = 1 - cosa;
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 0, cosa + u.x * u.x * xcosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 1, u.x * u.y * xcosa - u.z * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 0, 2, u.x * u.z * xcosa + u.y * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 0, u.y * u.x * xcosa + u.z * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 1, cosa + u.y * u.y * xcosa);
-			impl::set_supposed_r_v<VectorSystem>(i, 1, 2, u.y * u.z * xcosa - u.x * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 0, u.z * u.x * xcosa - u.y * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 1, u.z * u.y * xcosa + u.x * sina);
-			impl::set_supposed_r_v<VectorSystem>(i, 2, 2, cosa + u.z * u.z * xcosa);
+			impl::set_c_v<VectorSystem>(i, 0, 0, cosa + u.x * u.x * xcosa);
+			impl::set_c_v<VectorSystem>(i, 0, 1, u.x * u.y * xcosa - u.z * sina);
+			impl::set_c_v<VectorSystem>(i, 0, 2, u.x * u.z * xcosa + u.y * sina);
+			impl::set_c_v<VectorSystem>(i, 1, 0, u.y * u.x * xcosa + u.z * sina);
+			impl::set_c_v<VectorSystem>(i, 1, 1, cosa + u.y * u.y * xcosa);
+			impl::set_c_v<VectorSystem>(i, 1, 2, u.y * u.z * xcosa - u.x * sina);
+			impl::set_c_v<VectorSystem>(i, 2, 0, u.z * u.x * xcosa - u.y * sina);
+			impl::set_c_v<VectorSystem>(i, 2, 1, u.z * u.y * xcosa + u.x * sina);
+			impl::set_c_v<VectorSystem>(i, 2, 2, cosa + u.z * u.z * xcosa);
 			return i;
 		}
 	};
