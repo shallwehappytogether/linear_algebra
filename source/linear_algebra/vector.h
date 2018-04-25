@@ -51,7 +51,7 @@ namespace lin
 		}
 
 		// Return a vector which is normalized vector of this vector.
-		basic_vector normalized() const
+		basic_vector get_normalized() const
 		{
 			return basic_vector(*this).normalize();
 		}

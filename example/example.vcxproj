@@ -23,7 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\linear_algebra\graphic\transform.h" />
+    <ClInclude Include="..\source\linear_algebra\impl\_number_array.h" />
     <ClInclude Include="..\source\linear_algebra\matrix.h" />
+    <ClInclude Include="..\source\linear_algebra\quaternion.h" />
     <ClInclude Include="..\source\linear_algebra\trigonometry.h" />
     <ClInclude Include="..\source\linear_algebra\vector.h" />
     <ClInclude Include="print.h" />

@@ -10,6 +10,9 @@
     <Filter Include="linear_algebra\graphic">
       <UniqueIdentifier>{24ca48fd-69b2-4606-9003-91f838466e84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="linear_algebra\impl">
+      <UniqueIdentifier>{68b9b193-fdef-4231-ac16-87abf91ddae7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basic_usage.cpp">
@@ -31,6 +34,12 @@
     </ClInclude>
     <ClInclude Include="..\source\linear_algebra\graphic\transform.h">
       <Filter>linear_algebra\graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\quaternion.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\impl\_number_array.h">
+      <Filter>linear_algebra\impl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

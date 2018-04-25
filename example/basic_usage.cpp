@@ -25,7 +25,7 @@ int main()
 
 	// vector normalize
 	vector_4d v4;
-	auto v5 = v4.normalized(); // v4 itself is not affected
+	auto v5 = v4.get_normalized(); // v4 itself is not affected
 	v4.normalize(); // normalize v4 itself, so that v4 == v5 then
 
 	// vector dot product
@@ -43,7 +43,7 @@ int main()
 	square_matrix_4d m0; // zero matrix
 
 	// get an identity matrix
-	square_matrix_4d m1 = make_identity_matrix<double, 4>();
+	square_matrix_4d m1 = identity_matrix<double, 4>();
 
 	// matrix transpose
 	square_matrix_4d m2;
@@ -51,7 +51,7 @@ int main()
 	m2.transpose(); // transpose m2 itself
 
 	// matrix inverse
-	square_matrix_4d m4 = make_identity_matrix<double, 4>();
+	square_matrix_4d m4 = identity_matrix<double, 4>();
 	square_matrix_4d m5 = m4.inverse(); // m4 itself is not affected
 	m4.invert(); // inverse m4 itself
 
@@ -122,6 +122,19 @@ int main()
 
 	std::cout << "\nLIN ROTATE\n" <<
 		lin::rotating<GLM_VEC_SYS>::get(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0)) << "\n";
+
+
+	auto quatLIN = lin::rotation_quaternion(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0));
+	auto quatGLM = glm::angleAxis(glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0)));
+	std::cout << "\nLIN ROTATE\n" <<
+		quatLIN << "\n";
+	std::cout << "\nGLM ROTATE\n" <<
+		quatGLM << "\n";
+
+	std::cout << "\nLIN ROTATE RESULT\n" <<
+		quatLIN * vector_3d(10, 9, 8) << "\n";
+	std::cout << "\nGLM ROTATE RESULT\n" <<
+		quatGLM * glm::vec3(10, 9, 8) << "\n";
 
 	std::cout << "Bye!\n";
 }

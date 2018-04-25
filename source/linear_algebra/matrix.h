@@ -345,12 +345,21 @@ namespace lin
 
 	using square_matrix_4d = basic_square_matrix_4d<double>;
 
-	/* TEMPLATE FUNCTION make_identity_matrix
+	template <std::size_t Dimension>
+	using square_matrix_f = basic_square_matrix<float, Dimension>;
+
+	using square_matrix_2f = basic_square_matrix_2d<float>;
+
+	using square_matrix_3f = basic_square_matrix_3d<float>;
+
+	using square_matrix_4f = basic_square_matrix_4d<float>;
+
+	/* TEMPLATE FUNCTION identity_matrix
 	Return an identity [Dimension]x[Dimension] matrix with elements of [Ty].
 	*/
 	template <typename Ty, std::size_t Dimension>
 	basic_square_matrix<Ty, Dimension>
-		make_identity_matrix()
+		identity_matrix()
 	{
 		basic_square_matrix<Ty, Dimension> result;
 		for (decltype(result.dimension()) i = 0; i < result.dimension(); ++i)

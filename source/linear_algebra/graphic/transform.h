@@ -2,6 +2,7 @@
 
 #include <linear_algebra/matrix.h>
 #include <linear_algebra/vector.h>
+#include <linear_algebra/quaternion.h>
 
 namespace lin
 {
@@ -43,7 +44,7 @@ namespace lin
 			const Ty &y_,
 			const Ty &z_)
 		{
-			auto i = make_identity_matrix<Ty, 4>();
+			auto i = identity_matrix<Ty, 4>();
 			fill(i, x_, y_, z_);
 			return i;
 		}
@@ -77,7 +78,7 @@ namespace lin
 			const Ty &y_,
 			const Ty &z_)
 		{
-			auto i = make_identity_matrix<Ty, 4>();
+			auto i = identity_matrix<Ty, 4>();
 			i.element_at(0, 0) = x_;
 			i.element_at(1, 1) = y_;
 			i.element_at(2, 2) = z_;
@@ -92,7 +93,7 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const Ty &rangle_)
 		{
-			auto i = make_identity_matrix<Ty, 4>();
+			auto i = identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
 			impl::set_c_v<VectorSystem>(i, 1, 1, cosa);
 			impl::set_c_v<VectorSystem>(i, 2, 2, cosa);
@@ -109,7 +110,7 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const Ty &rangle_)
 		{
-			auto i = make_identity_matrix<Ty, 4>();
+			auto i = identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
 			impl::set_c_v<VectorSystem>(i, 0, 0, cosa);
 			impl::set_c_v<VectorSystem>(i, 2, 2, cosa);
@@ -126,7 +127,7 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const Ty &rangle_)
 		{
-			auto i = make_identity_matrix<Ty, 4>();
+			auto i = identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
 			impl::set_c_v<VectorSystem>(i, 0, 0, cosa);
 			impl::set_c_v<VectorSystem>(i, 1, 1, cosa);
@@ -143,8 +144,8 @@ namespace lin
 		static basic_square_matrix_4d<Ty> get(
 			const Ty &rangle_, const basic_vector_3d<Ty> &axis_)
 		{
-			auto u = axis_.normalized();
-			auto i = make_identity_matrix<Ty, 4>();
+			auto u = axis_.get_normalized();
+			auto i = identity_matrix<Ty, 4>();
 			Ty cosa = std::cos(rangle_), sina = std::sin(rangle_);
 			Ty xcosa = 1 - cosa;
 			impl::set_c_v<VectorSystem>(i, 0, 0, cosa + u.x * u.x * xcosa);
@@ -165,7 +166,7 @@ namespace lin
 	{
 	public:
 		transform()
-			:_mat(make_identity_matrix<Ty, 4>())
+			:_mat(identity_matrix<Ty, 4>())
 		{
 
 		}

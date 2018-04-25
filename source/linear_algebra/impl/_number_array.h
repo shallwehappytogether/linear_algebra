@@ -203,7 +203,7 @@ namespace lin::impl
 		_number_array& operator+=(const _number_array<RightTy, Size> &right)
 		{
 			for (size_type i = 0; i < size(); ++i)
-				left[i] += right[i];
+				(*this)[i] += right[i];
 			return *this;
 		}
 
