@@ -6,8 +6,17 @@
 #include <iostream>
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
+#include <glm\gtx\euler_angles.hpp>
 #include "print.h"
 using namespace lin;
+
+template <typename LINTy, typename GLMTy>
+void compare(const char *content, const LINTy &linval, const GLMTy &glmval)
+{
+	std::cout << "===== " << content << " =====\n"
+		"lin\n" << linval << "\n" <<
+		"glm\n" << glmval << "\n\n";
+}
 
 int main()
 {
@@ -96,62 +105,74 @@ int main()
 	vector_3d vertex;
 	auto vertexTransformed = myTrans.apply(vertex.homogeneous()).reduce();
 
-	std::cout << "\nLIN TRANS\n" << parentTrans.matrix() << "\n";
-
-
 	glm::mat4 parentTransGLM;
 	parentTransGLM = glm::translate(parentTransGLM, glm::vec3(1.0, 2.0, 3.0));
 	parentTransGLM = glm::scale(parentTransGLM, glm::vec3(1.0, 1.0, 1.0));
 	parentTransGLM = glm::rotate(parentTransGLM, glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0)));
-	std::cout << "\nGLM TRANS\n" << parentTransGLM << "\n";
 
-	std::cout << "\nLIN INVTRANS\n" << parentTrans.matrix().inverse() << "\n";
-	std::cout << "\nGLM INVTRANS\n" << glm::inverse(parentTransGLM) << "\n";
+	auto randomAxisLin = vector_3d(1., 2., 3.).get_normalized();
+	auto randomAngleLin = lin::radius(76.);
+	auto randomQuatLin = lin::rotation_quaternion(randomAngleLin, randomAxisLin);
+	auto randomAxis2Lin = vector_3d(45., -84., 23.).get_normalized();
+	auto randomAngle2Lin = lin::radius(-26.);
+	auto randomQuat2Lin = lin::rotation_quaternion(randomAngle2Lin, randomAxis2Lin);
+	auto randomScaleLin = lin::vector_3d(2.0, 2.0, 2.0);
+	auto randomMoveLin = lin::vector_3d(4.0, 5.0, 6.0);
 
-	std::cout << "\nGLM TRANSLATE\n" <<
-		glm::translate(glm::mat4(), glm::vec3(4.0, 5.0, 6.0)) << "\n";
+	auto randomAxisGlm = glm::normalize(glm::vec3(1.f, 2.f, 3.f));
+	auto randomAngleGlm = glm::radians(76.f);
+	auto randomQuatGlm = glm::angleAxis(randomAngleGlm, randomAxisGlm);
+	auto randomAxis2Glm = glm::normalize(glm::vec3(45.f, -84.f, 23.f));
+	auto randomAngle2Glm = glm::radians(-26.f);
+	auto randomQuat2Glm = glm::angleAxis(randomAngle2Glm, randomAxis2Glm);
+	auto randomScaleGlm = glm::vec3(2.0f, 2.0f, 2.0f);
+	auto randomMoveGlm = glm::vec3(4.0f, 5.0f, 6.0f);
 
-	std::cout << "\nLIN TRANSLATE\n" <<
-		lin::translating<GLM_VEC_SYS>::get(lin::vector_3d(4.0, 5.0, 6.0)) << "\n";
+	compare("Translation matrix",
+		lin::translating<GLM_VEC_SYS>::get(randomMoveLin),
+		glm::translate(glm::mat4(), randomMoveGlm));
 
+	compare("Scalling matrix",
+		lin::scalling<GLM_VEC_SYS>::get(randomScaleLin),
+		glm::scale(glm::mat4(), randomScaleGlm));
 
-	std::cout << "\nGLM SCALE\n" <<
-		glm::scale(glm::mat4(), glm::vec3(2.0, 2.0, 2.0)) << "\n";
+	compare("Rotation matrix(Axis-Angle to matrix)",
+		lin::rotating<GLM_VEC_SYS>::get(randomAngleLin, randomAxisLin),
+		glm::rotate(glm::mat4(), randomAngleGlm, randomAxisGlm));
 
-	std::cout << "\nLIN SCALE\n" <<
-		lin::scalling<GLM_VEC_SYS>::get(lin::vector_3d(2.0, 2.0, 2.0)) << "\n";
+	compare("TRS matrix multiply",
+		parentTrans.matrix(),
+		parentTransGLM);
 
+	compare("matrix inverse",
+		parentTrans.matrix().inverse(),
+		glm::inverse(parentTransGLM));
 
-	std::cout << "\nGLM ROTATE\n" <<
-		glm::rotate(glm::mat4(), glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0))) << "\n";
+	compare("Apply quaternion to vector",
+		randomQuatLin * vector_3d(10., 9., 8.),
+		randomQuatGlm * glm::vec3(10.f, 9.f, 8.f));
 
-	std::cout << "\nLIN ROTATE\n" <<
-		lin::rotating<GLM_VEC_SYS>::get(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0)) << "\n";
+	compare("Axis-Angle to Quaternion",
+		randomQuatLin,
+		randomQuatGlm);
 
-	quaternion_f q;
-	quaternion q2;
-	q = q2;
-	auto quatLIN = lin::rotation_quaternion(lin::radius(45.0), lin::vector_3d(1.0, 1.0, 1.0));
-	auto quatGLM = glm::angleAxis(glm::radians(45.0f), glm::normalize(glm::vec3(1.0, 1.0, 1.0)));
-	std::cout << "\nLIN ROTATE\n" <<
-		quatLIN << "\n";
-	std::cout << "\nGLM ROTATE\n" <<
-		quatGLM << "\n";
+	compare("Quaternion to matrix",
+		lin::rotating<GLM_VEC_SYS>::get(randomQuatLin),
+		glm::mat4_cast(randomQuatGlm));
 
-	std::cout << "\nLIN ROTATE RESULT\n" <<
-		quatLIN * vector_3d(10, 9, 8) << "\n";
-	std::cout << "\nGLM ROTATE RESULT\n" <<
-		quatGLM * glm::vec3(10, 9, 8) << "\n";
+	compare("Lookat matrix",
+		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{ 400, 300, 200 }, vector_3d{ 1, 2, 3 }, vector_3d{ 0, 1, 0 }),
+		glm::lookAtRH(glm::vec3{ 400, 300, 200 }, glm::vec3{ 400, 300, 200 } +glm::vec3{ 1, 2, 3 }, { 0, 1, 0 }));
 
-	std::cout << "\nLIN ROTATE MATRIX\n" <<
-		lin::rotating<GLM_VEC_SYS>::get(quatLIN) << "\n";
-	std::cout << "\nGLM ROTATE MATRIX\n" <<
-		glm::mat4_cast(quatGLM) << "\n";
+	compare("Eular angle to quaternion",
+		lin::to_quaternion(lin::eular_angle_xyz(lin::radius(45.0), lin::radius(45.0), lin::radius(45.0))),
+		glm::toQuat(glm::eulerAngleXYZ(glm::radians(45.0), glm::radians(45.0), glm::radians(45.0))));
 
+	compare("Quaternion multiply", 
+		randomQuatLin * randomQuat2Lin,
+		randomQuatGlm * randomQuat2Glm);
 
-	std::cout << "\nLIN LOOKAT MATRIX\n" <<
-		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{ 400, 300, 200 }, vector_3d{1, 2, 3}, vector_3d{0, 1, 0}) << "\n";
-	std::cout << "\nGLM LOOKAT MATRIX\n" <<
-		glm::lookAtRH(glm::vec3{ 400, 300, 200 }, glm::vec3{ 400, 300, 200 } + glm::vec3{ 1, 2, 3 }, { 0, 1, 0 }) << "\n";
-	std::cout << "Bye!\n";
+	compare("Quaternion multiply(reversed)",
+		randomQuat2Lin * randomQuatLin,
+		randomQuat2Glm * randomQuatGlm);
 }

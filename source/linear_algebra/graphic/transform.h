@@ -3,6 +3,8 @@
 #include <linear_algebra/matrix.h>
 #include <linear_algebra/vector.h>
 #include <linear_algebra/quaternion.h>
+#include <linear_algebra/eular_angle.h>
+#include <linear_algebra/impl/utility.h>
 
 namespace lin
 {
@@ -302,4 +304,57 @@ namespace lin
 				_mat = _mat * m;
 		}
 	};
+
+	namespace impl
+	{
+		template <typename Ty, std::size_t ...EularAngleBasis>
+		struct to_quaternion_helper
+		{
+		private:
+			using Quat = basic_quaternion<Ty>;
+
+			using EularAngle = basic_eular_angle<Ty, EularAngleBasis...>;
+
+			constexpr static std::size_t EularAngleBasisSize = sizeof...(EularAngleBasis);
+
+			template <std::size_t N>
+			struct Progress
+			{
+				static Quat get(const Quat &lastquat, const EularAngle &eularangle_)
+				{
+					return Progress<N + 1>::get(
+						lastquat * get_cur_quat(eularangle_), eularangle_);
+				}
+			private:
+				static Quat get_cur_quat(const EularAngle &eularangle_)
+				{
+					constexpr std::size_t coord =
+						get_nth_param_value<N, std::size_t, EularAngleBasis...>::value;
+					return rotation_quaternion(
+						eularangle_[N], basic_vector_3d<Ty>::basis<coord>());
+				}
+			};
+
+			template <>
+			struct Progress<EularAngleBasisSize>
+			{
+				static Quat get(const Quat &lastquat, const EularAngle &eularangle_)
+				{
+					return lastquat;
+				}
+			};
+		public:
+			static Quat get(const EularAngle &eularangle_)
+			{
+				return Progress<0>::get(rotation_quaternion<Ty>(), eularangle_);
+			}
+		};
+	}
+
+	template <typename Ty, std::size_t ...EularAngleBasis>
+	basic_quaternion<Ty> to_quaternion(
+		const basic_eular_angle<Ty, EularAngleBasis...> &eularangle_)
+	{
+		return impl::to_quaternion_helper<Ty, EularAngleBasis...>::get(eularangle_);
+	}
 }

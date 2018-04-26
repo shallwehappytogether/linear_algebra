@@ -12,7 +12,10 @@ namespace lin::impl
 	public:
 		using std::array<Ty, Size>::array;
 
-		_number_array_storage() = default;
+		_number_array_storage()
+			:std::array<Ty, Size>{0}
+		{
+		}
 
 		template <typename OtherTy>
 		_number_array_storage(const _number_array_storage<Ty, Size> &other_)

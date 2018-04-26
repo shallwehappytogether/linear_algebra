@@ -41,5 +41,14 @@
     <ClInclude Include="..\source\linear_algebra\impl\_number_array.h">
       <Filter>linear_algebra\impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\eular_angle.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\convention.h">
+      <Filter>linear_algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\linear_algebra\impl\utility.h">
+      <Filter>linear_algebra\impl</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

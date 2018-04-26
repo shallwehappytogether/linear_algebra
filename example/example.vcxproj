@@ -22,7 +22,10 @@
     <ClCompile Include="basic_usage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\source\linear_algebra\convention.h" />
+    <ClInclude Include="..\source\linear_algebra\eular_angle.h" />
     <ClInclude Include="..\source\linear_algebra\graphic\transform.h" />
+    <ClInclude Include="..\source\linear_algebra\impl\utility.h" />
     <ClInclude Include="..\source\linear_algebra\impl\_number_array.h" />
     <ClInclude Include="..\source\linear_algebra\matrix.h" />
     <ClInclude Include="..\source\linear_algebra\quaternion.h" />

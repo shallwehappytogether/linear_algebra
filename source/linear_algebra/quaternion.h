@@ -88,7 +88,7 @@ namespace lin
 	basic_quaternion<Ty> rotation_quaternion()
 	{
 		const auto zero = static_cast<Ty>(0);
-		retunr { zero, zero, zero, static_cast<Ty>(1) };
+		return { zero, zero, zero, static_cast<Ty>(1) };
 	}
 
 	template <typename Ty>
