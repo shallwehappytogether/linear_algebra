@@ -73,17 +73,6 @@ namespace lin
 		};
 	}
 
-	template <typename LeftTy, typename RightTy>
-	basic_vector_3d<std::common_type_t<LeftTy, RightTy>> rotate(
-		const basic_quaternion<LeftTy> &quat_,
-		const basic_vector_3d<RightTy> &point_)
-	{
-		using ResultValueType = std::common_type_t<LeftTy, RightTy>;
-		basic_quaternion<ResultValueType> v(point_.x, point_.y, point_.z, 0);
-		auto q = quat_ * v * quat_.inverse();
-		return { q.x, q.y, q.z };
-	}
-
 	template <typename Ty>
 	basic_quaternion<Ty> rotation_quaternion()
 	{
@@ -100,6 +89,18 @@ namespace lin
 		return { sina * u.x, sina * u.y, sina * u.z, cosa };
 	}
 
+	template <typename LeftTy, typename RightTy>
+	basic_vector_3d<std::common_type_t<LeftTy, RightTy>> rotate(
+		const basic_quaternion<LeftTy> &quat_,
+		const basic_vector_3d<RightTy> &point_)
+	{
+		using ResultValueType = std::common_type_t<LeftTy, RightTy>;
+		basic_quaternion<ResultValueType> v(point_.x, point_.y, point_.z, 0);
+		auto q = quat_ * v * quat_.inverse();
+		return { q.x, q.y, q.z };
+	}
+
+	// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/transforms/index.htm
 	template <typename Ty>
 	std::pair<Ty, basic_vector_3d<Ty>>
 		extract_angle_axis(const basic_quaternion<Ty> &quat_)
@@ -109,5 +110,25 @@ namespace lin
 			static_cast<Ty>(2) * std::acos(q.w),
 			basic_vector_3d<Ty>(q.x, q.y, q.z) / std::sqrt(1 - q.w * q.w)
 		};
+	}
+
+	template <typename Ty>
+	static basic_quaternion<Ty> reflection_quaternion(
+		const basic_vector_3d<Ty> &planenormal_)
+	{
+		auto n = planenormal_.get_normalized();
+		return { n.x, n.y, n.z };
+	}
+
+	// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/transforms/index.htm
+	template <typename LeftTy, typename RightTy>
+	basic_vector_3d<std::common_type_t<LeftTy, RightTy>> reflect(
+		const basic_quaternion<LeftTy> &quat_,
+		const basic_vector_3d<RightTy> &point_)
+	{
+		using ResultValueType = std::common_type_t<LeftTy, RightTy>;
+		basic_quaternion<ResultValueType> v(point_.x, point_.y, point_.z, 0);
+		auto q = quat_ * v * quat_;
+		return { q.x, q.y, q.z };
 	}
 }
