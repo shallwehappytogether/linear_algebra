@@ -8,14 +8,14 @@
 
 namespace lin
 {
-	/* TEMPLATE CLASS basic_matrix
-	The basic_matrix represents a mathematical matrix with [RowDimension] row and [ColumnDimension] column elements of type [Ty].
+	/* TEMPLATE CLASS basic_matrix_base
+	The basic_matrix_base represents a mathematical matrix with [RowDimension] row and [ColumnDimension] column elements of type [Ty].
 	It underlying use a plain array with [RowDimension] * [ColumnDimension] elements of type [Ty].
 
 	Matrix's elements are stored sequenced, no padding, column by column.
 	*/
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
-	class basic_matrix
+	class basic_matrix_base
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
 		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
@@ -69,9 +69,9 @@ namespace lin
 		}
 
 		// Return a matrix which is transpose matrix of this matrix.
-		basic_matrix<Ty, ColumnDimension, RowDimension> transpose() const
+		basic_matrix_base<Ty, ColumnDimension, RowDimension> transpose() const
 		{
-			basic_matrix<Ty, ColumnDimension, RowDimension> result;
+			basic_matrix_base<Ty, ColumnDimension, RowDimension> result;
 			for (row_dimension_type r = 0; r < row_dimension(); ++r)
 				for (column_dimension_type c = 0; c < column_dimension(); ++c)
 					result.element_at(c, r) = this->element_at(r, c);
@@ -80,10 +80,10 @@ namespace lin
 
 		// Return a matrix which is the result of multiply this matrix by matrix [right];
 		template <typename RightTy, std::size_t RightColumnDimension>
-		basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
-			operator*(const basic_matrix<RightTy, RowDimension, RightColumnDimension> &right) const
+		basic_matrix_base<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+			operator*(const basic_matrix_base<RightTy, RowDimension, RightColumnDimension> &right) const
 		{
-			typedef basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+			typedef basic_matrix_base<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
 				resultTy;
 			resultTy result;
 			for (decltype(result.row_dimension()) r = 0; r < result.row_dimension(); ++r)
@@ -105,16 +105,16 @@ namespace lin
 
 	/* TEMPLATE CLASS basic_square_matrix
 	The basic_square_matrix represents a mathematical square matrix with elements of type [Ty].
-	It is essential a derived class of basic_matrix
+	It is essential a derived class of basic_matrix_base
 	with [RowDimension] and [ColumnDimension] both equal to [Dimension].
 	*/
 	template <typename Ty, std::size_t Dimension>
 	class basic_square_matrix
-		:public basic_matrix<Ty, Dimension, Dimension>
+		:public basic_matrix_base<Ty, Dimension, Dimension>
 	{
-		typedef basic_matrix<Ty, Dimension, Dimension> MyBase;
+		typedef basic_matrix_base<Ty, Dimension, Dimension> MyBase;
 	public:
-		using MyBase::basic_matrix;
+		using MyBase::basic_matrix_base;
 
 		using MyBase::operator=;
 
@@ -331,6 +331,13 @@ namespace lin
 		}
 	};
 
+	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
+	using basic_matrix = std::conditional_t<
+		RowDimension == ColumnDimension,
+		basic_square_matrix<Ty, RowDimension>,
+		basic_matrix_base<Ty, RowDimension, ColumnDimension>
+		>;
+
 	template <typename Ty>
 	using basic_square_matrix_2d = basic_square_matrix<Ty, 2>;
 
@@ -379,7 +386,7 @@ namespace lin
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 		basic_vector<VectorValueTy, VectorDimension>&
 		operator*=(
-			const basic_matrix<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
+			const basic_matrix_base<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
 			basic_vector<VectorValueTy, VectorDimension> &vec)
 	{
 		for (decltype(mat.row_dimension()) r = 0; r < VectorDimension; ++r)
@@ -400,7 +407,7 @@ namespace lin
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 		basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
 		operator*(
-			const basic_matrix<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
+			const basic_matrix_base<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
 			const basic_vector<VectorValueTy, VectorDimension> &vec)
 	{
 		typedef
@@ -419,7 +426,7 @@ namespace lin
 		basic_vector<VectorValueTy, VectorDimension>
 		operator*=(
 			basic_vector<VectorValueTy, VectorDimension> &vec,
-			const basic_matrix<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
+			const basic_matrix_base<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
 	{
 		for (decltype(mat.column_dimension()) c = 0; c < VectorDimension; ++c)
 		{
@@ -440,7 +447,7 @@ namespace lin
 		basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
 		operator*(
 			const basic_vector<VectorValueTy, VectorDimension> &vec,
-			const basic_matrix<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
+			const basic_matrix_base<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
 	{
 		typedef
 			basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>

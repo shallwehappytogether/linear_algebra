@@ -79,15 +79,19 @@ int main()
 	// but tranpose is allowed, it return a new matrix
 	auto nonsqrmT = nonsqrm.transpose();
 
-	// affine transform, treat vector as column vector
-	matrix_4d translMatrix, rotMatrix, scaleMatrix;
-	vector_3d localPosition;
-	vector_3d worldPosition = (translMatrix * rotMatrix * scaleMatrix * localPosition.homogeneous()).reduce();
+	//// affine transform, treat vector as column vector
+	//matrix_4d translMatrix, rotMatrix, scaleMatrix;
+	//vector_3d localPosition;
+	//vector_3d worldPosition = (translMatrix * rotMatrix * scaleMatrix * localPosition.homogeneous()).reduce();
 
-	// affine transform, treat vector as row vector
-	matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
+	//// affine transform, treat vector as row vector
+	//matrix_4d translMatrixT, rotMatrixT, scaleMatrixT;
+	//vector_3d localPositionT;
+	//vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
+
+	matrix_4d translMatrixT;
 	vector_3d localPositionT;
-	vector_3d worldPositionT = (localPositionT.homogeneous() * scaleMatrixT * rotMatrixT * translMatrixT).reduce();
+	translMatrixT * localPositionT.homogeneous();
 
 	using GLM_VEC_SYS = lin::c_v;
 
