@@ -77,7 +77,7 @@ int main()
 	//nonsqrm.inverse_to_assign();
 	//nonsqrm.transpose_to_assign();
 	// but tranpose is allowed, it return a new matrix
-	auto nonsqrmT = nonsqrm.transpose();
+	auto nonsqrmT = nonsqrm.get_transpose();
 
 	//// affine transform, treat vector as column vector
 	//matrix_4d translMatrix, rotMatrix, scaleMatrix;

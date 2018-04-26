@@ -19,8 +19,8 @@ namespace lin
 		template <typename VectorSystem, typename Ty>
 		static inline void set_c_v(
 			basic_square_matrix_4d<Ty> &m,
-			typename basic_square_matrix_4d<Ty>::dimension_type r,
-			typename basic_square_matrix_4d<Ty>::dimension_type c,
+			typename basic_square_matrix_4d<Ty>::row_dimension_type r,
+			typename basic_square_matrix_4d<Ty>::column_dimension_type c,
 			const Ty &val_)
 		{
 			if constexpr (std::is_same_v<VectorSystem, c_v>)

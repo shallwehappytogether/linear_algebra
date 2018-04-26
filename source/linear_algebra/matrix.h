@@ -15,7 +15,7 @@ namespace lin
 	Matrix's elements are stored sequenced, no padding, column by column.
 	*/
 	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
-	class basic_matrix_base
+	class basic_matrix
 		:public impl::_number_array<Ty, RowDimension * ColumnDimension>
 	{
 		typedef impl::_number_array<Ty, RowDimension * ColumnDimension> MyBase;
@@ -44,6 +44,11 @@ namespace lin
 			return ColumnDimension;
 		}
 
+		constexpr static bool is_squared()
+		{
+			return RowDimension == ColumnDimension;
+		}
+
 		// Return the reference to element at row [r] and column [c].
 		constexpr Ty& element_at(row_dimension_type r, column_dimension_type c)
 		{
@@ -69,9 +74,9 @@ namespace lin
 		}
 
 		// Return a matrix which is transpose matrix of this matrix.
-		basic_matrix_base<Ty, ColumnDimension, RowDimension> transpose() const
+		basic_matrix<Ty, ColumnDimension, RowDimension> transpose() const
 		{
-			basic_matrix_base<Ty, ColumnDimension, RowDimension> result;
+			basic_matrix<Ty, ColumnDimension, RowDimension> result;
 			for (row_dimension_type r = 0; r < row_dimension(); ++r)
 				for (column_dimension_type c = 0; c < column_dimension(); ++c)
 					result.element_at(c, r) = this->element_at(r, c);
@@ -80,10 +85,10 @@ namespace lin
 
 		// Return a matrix which is the result of multiply this matrix by matrix [right];
 		template <typename RightTy, std::size_t RightColumnDimension>
-		basic_matrix_base<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
-			operator*(const basic_matrix_base<RightTy, RowDimension, RightColumnDimension> &right) const
+		basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+			operator*(const basic_matrix<RightTy, RowDimension, RightColumnDimension> &right) const
 		{
-			typedef basic_matrix_base<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
+			typedef basic_matrix<std::common_type_t<Ty, RightTy>, ColumnDimension, RightColumnDimension>
 				resultTy;
 			resultTy result;
 			for (decltype(result.row_dimension()) r = 0; r < result.row_dimension(); ++r)
@@ -96,63 +101,33 @@ namespace lin
 				}
 			return result;
 		}
-	private:
-		inline MyBase::size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
-		{
-			return columndimension * RowDimension + rowdimension;
-		}
-	};
-
-	/* TEMPLATE CLASS basic_square_matrix
-	The basic_square_matrix represents a mathematical square matrix with elements of type [Ty].
-	It is essential a derived class of basic_matrix_base
-	with [RowDimension] and [ColumnDimension] both equal to [Dimension].
-	*/
-	template <typename Ty, std::size_t Dimension>
-	class basic_square_matrix
-		:public basic_matrix_base<Ty, Dimension, Dimension>
-	{
-		typedef basic_matrix_base<Ty, Dimension, Dimension> MyBase;
-	public:
-		using MyBase::basic_matrix_base;
-
-		using MyBase::operator=;
-
-		// Large enough to hold row dimension or column dimension of this matrix.
-		using dimension_type = MyBase::row_dimension_type;
-
-		using value_type = typename MyBase::value_type;
-
-		// Equal to [Dimension].
-		constexpr static dimension_type dimension()
-		{
-			return Dimension;
-		}
-
-		// 将本矩阵转置并返回。
-		basic_square_matrix& transpose()
-		{
-			return *this = get_transpose();
-		}
 
 		// 返回本矩阵的转置矩阵。
-		basic_square_matrix get_transpose()
+		basic_matrix<Ty, ColumnDimension, RowDimension> get_transpose()
 		{
-			basic_square_matrix result;
-			for (dimension_type r = 0; r < dimension(); ++r)
-				for (dimension_type c = 0; c < dimension(); ++c)
-				{
-					result.element_at(c, r) = MyBase::element_at(r, c);
-				}
+			basic_matrix<Ty, ColumnDimension, RowDimension> result;
+			for (row_dimension_type r = 0; r < row_dimension(); ++r)
+				for (column_dimension_type c = 0; c < column_dimension(); ++c)
+					result.element_at(c, r) = element_at(r, c);
 			return result;
 		}
 
-		// 返回本矩阵的伴随矩阵。
-		basic_square_matrix adjoint() const
+		// 将本矩阵转置并返回。
+		basic_matrix& transpose()
 		{
-			basic_square_matrix result;
-			for (dimension_type r = 0; r < dimension(); ++r)
-				for (dimension_type c = 0; c < dimension(); ++c)
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
+			return *this = get_transpose();
+		}
+
+		// 返回本矩阵的伴随矩阵。
+		basic_matrix adjoint() const
+		{
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
+			basic_matrix result;
+			for (row_dimension_type r = 0; r < row_dimension(); ++r)
+				for (row_dimension_type c = 0; c < column_dimension(); ++c)
 				{
 					auto detFac = algebraic_cofactor(r, c).determinant();
 					result.element_at(c, r) = detFac;
@@ -161,14 +136,18 @@ namespace lin
 		}
 
 		// 将本矩阵求逆并返回。
-		basic_square_matrix& invert()
+		basic_matrix& invert()
 		{
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
 			return *this = inverse();
 		}
 
 		// 返回本矩阵的逆矩阵。
-		basic_square_matrix inverse() const
+		basic_matrix inverse() const
 		{
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
 			auto det = determinant();
 			if (det == 0)
 				return *this;
@@ -178,33 +157,41 @@ namespace lin
 		}
 
 		// 返回一个新的矩阵，这个新矩阵对应的行列式是本矩阵对应的行列式的第[r]行第[c]列元素的代数余子式。
-		basic_square_matrix<Ty, Dimension - 1>
-			algebraic_cofactor(dimension_type r, dimension_type c) const
+		basic_matrix<Ty, RowDimension - 1, RowDimension - 1>
+			algebraic_cofactor(row_dimension_type r, row_dimension_type c) const
 		{
-			static_assert(Dimension > 0,
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
+			static_assert(RowDimension > 0,
 				"Only square matrix with non-zero dimension(s) may get the algebraic_cofactor.");
 
-			basic_square_matrix<Ty, Dimension - 1> result;
-			_cofactor(MyBase::data(), dimension(), r, c, result.data());
+			basic_matrix<Ty, RowDimension - 1, RowDimension - 1> result;
+			_cofactor(MyBase::data(), row_dimension(), r, c, result.data());
 			return result;
 		}
 
 		// 计算本矩阵对应的行列式的值。
 		value_type determinant() const
 		{
-			if constexpr (Dimension == 1)
+			static_assert(is_squared(), "Worked only for squared matrix.");
+
+			if constexpr (RowDimension == 1)
 				return data()[0];
-			else if constexpr (Dimension == 2)
+			else if constexpr (RowDimension == 2)
 				return _det2(MyBase::data());
-			else if constexpr (Dimension == 3)
+			else if constexpr (RowDimension == 3)
 				return _det3(MyBase::data());
-			else if constexpr (Dimension == 4)
+			else if constexpr (RowDimension == 4)
 				return _det4(MyBase::data());
 			else
-				return _det(MyBase::data(), Dimension);
+				return _det(MyBase::data(), RowDimension);
 		}
 	private:
-		
+		inline MyBase::size_type _elemIndex(row_dimension_type rowdimension, column_dimension_type columndimension) const
+		{
+			return columndimension * RowDimension + rowdimension;
+		}
+
 		// 存储[fromdim]阶行列式[from]的元素[dstr, dstc]的代数余子式到[result]中。
 		static void _cofactor(
 			const Ty *from,
@@ -243,7 +230,7 @@ namespace lin
 		// 计算[dim]阶行列式[arr]的值。
 		// 算法：行列式等于它的任一行（列）的各元素与其对应的代数余子式乘积之和。
 		static inline value_type _det(
-			Ty *arr, dimension_type dim)
+			Ty *arr, row_dimension_type dim)
 		{
 			assert(dim >= 4);
 
@@ -331,12 +318,8 @@ namespace lin
 		}
 	};
 
-	template <typename Ty, std::size_t RowDimension, std::size_t ColumnDimension>
-	using basic_matrix = std::conditional_t<
-		RowDimension == ColumnDimension,
-		basic_square_matrix<Ty, RowDimension>,
-		basic_matrix_base<Ty, RowDimension, ColumnDimension>
-		>;
+	template <typename Ty, std::size_t Dimension>
+	using basic_square_matrix = basic_matrix<Ty, Dimension, Dimension>;
 
 	template <typename Ty>
 	using basic_square_matrix_2d = basic_square_matrix<Ty, 2>;
@@ -373,7 +356,7 @@ namespace lin
 		identity_matrix()
 	{
 		basic_square_matrix<Ty, Dimension> result;
-		for (decltype(result.dimension()) i = 0; i < result.dimension(); ++i)
+		for (decltype(result.row_dimension()) i = 0; i < result.row_dimension(); ++i)
 			result.element_at(i, i) = 1;
 		return result;
 	}
@@ -386,7 +369,7 @@ namespace lin
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 		basic_vector<VectorValueTy, VectorDimension>&
 		operator*=(
-			const basic_matrix_base<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
+			const basic_matrix<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
 			basic_vector<VectorValueTy, VectorDimension> &vec)
 	{
 		for (decltype(mat.row_dimension()) r = 0; r < VectorDimension; ++r)
@@ -407,7 +390,7 @@ namespace lin
 		std::size_t VectorDimension, std::size_t MatrixColumnDimension>
 		basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
 		operator*(
-			const basic_matrix_base<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
+			const basic_matrix<MatrixTy, VectorDimension, MatrixColumnDimension> &mat,
 			const basic_vector<VectorValueTy, VectorDimension> &vec)
 	{
 		typedef
@@ -426,7 +409,7 @@ namespace lin
 		basic_vector<VectorValueTy, VectorDimension>
 		operator*=(
 			basic_vector<VectorValueTy, VectorDimension> &vec,
-			const basic_matrix_base<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
+			const basic_matrix<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
 	{
 		for (decltype(mat.column_dimension()) c = 0; c < VectorDimension; ++c)
 		{
@@ -447,7 +430,7 @@ namespace lin
 		basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
 		operator*(
 			const basic_vector<VectorValueTy, VectorDimension> &vec,
-			const basic_matrix_base<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
+			const basic_matrix<MatrixTy, MatrixRowDimension, VectorDimension> &mat)
 	{
 		typedef
 			basic_vector<std::common_type_t<VectorValueTy, MatrixTy>, VectorDimension>
