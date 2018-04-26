@@ -149,7 +149,7 @@ int main()
 		glm::inverse(parentTransGLM));
 
 	compare("Apply quaternion to vector",
-		randomQuatLin * vector_3d(10., 9., 8.),
+		lin::rotate(randomQuatLin, vector_3d(10., 9., 8.)),
 		randomQuatGlm * glm::vec3(10.f, 9.f, 8.f));
 
 	compare("Axis-Angle to Quaternion",

@@ -74,7 +74,7 @@ namespace lin
 	}
 
 	template <typename LeftTy, typename RightTy>
-	basic_vector_3d<std::common_type_t<LeftTy, RightTy>> operator*(
+	basic_vector_3d<std::common_type_t<LeftTy, RightTy>> rotate(
 		const basic_quaternion<LeftTy> &quat_,
 		const basic_vector_3d<RightTy> &point_)
 	{
