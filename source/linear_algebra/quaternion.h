@@ -99,4 +99,15 @@ namespace lin
 		Ty cosa = std::cos(rangle_ / 2), sina = std::sin(rangle_ / 2);
 		return { sina * u.x, sina * u.y, sina * u.z, cosa };
 	}
+
+	template <typename Ty>
+	std::pair<Ty, basic_vector_3d<Ty>>
+		extract_angle_axis(const basic_quaternion<Ty> &quat_)
+	{
+		auto q = quat_.get_normalized();
+		return {
+			static_cast<Ty>(2) * std::acos(q.w),
+			basic_vector_3d<Ty>(q.x, q.y, q.z) / std::sqrt(1 - q.w * q.w)
+		};
+	}
 }

@@ -171,6 +171,7 @@ namespace lin
 		template <dimension_type Comp>
 		static basic_vector basis()
 		{
+			static_assert(Comp < Dimension, "Invalid coordinate index.");
 			basic_vector result{};
 			result[Comp] = 1;
 			return result;
