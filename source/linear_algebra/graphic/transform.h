@@ -273,6 +273,13 @@ namespace lin
 			return *this;
 		}
 
+		template <typename Ty>
+		transform& then(const basic_square_matrix_4d<Ty> &mat_)
+		{
+			_multi(mat_);
+			return *this;
+		}
+
 		template <template <typename> class Transform, typename ...Args>
 		transform& then(Args&& ...args)
 		{
