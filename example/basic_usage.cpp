@@ -176,6 +176,14 @@ int main()
 		lin::perspective_lhs<GLM_VEC_SYS>::get(0.1, 100., lin::radius(80.), 16 / 9.),
 		glm::perspectiveLH(glm::radians(80.f), 16 / 9.f, 0.1f, 100.0f));
 
+	compare("Ortho matrix",
+		lin::ortho_projection_rhs<GLM_VEC_SYS>::get(123., 456., 789., 10., 11., 1213.),
+		glm::orthoRH(123.f, 456.f, 10.f, 789.f, 11.f, 1213.f));
+
+	compare("Ortho matrix(lhs)",
+		lin::ortho_projection_lhs<GLM_VEC_SYS>::get(123., 456., 789., 10., 11., 1213.),
+		glm::orthoLH(123.f, 456.f, 10.f, 789.f, 11.f, 1213.f));
+
 	compare("Eular angle to quaternion",
 		lin::to_quaternion(lin::eular_angle_xyz(lin::radius(45.0), lin::radius(45.0), lin::radius(45.0))),
 		glm::toQuat(glm::eulerAngleXYZ(glm::radians(45.0), glm::radians(45.0), glm::radians(45.0))));

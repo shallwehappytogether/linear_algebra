@@ -262,8 +262,6 @@ namespace lin
 			const Ty &fovy_,
 			const Ty &aspectratio_)
 		{
-			const auto zero = static_cast<Ty>(0);
-
 			auto tanHalfFOVY = std::tan(fovy_ / static_cast<Ty>(2));
 			basic_square_matrix_4d<Ty> result;
 			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(1) / (aspectratio_ * tanHalfFOVY));
@@ -286,8 +284,6 @@ namespace lin
 			const Ty &fovy_,
 			const Ty &aspectratio_)
 		{
-			const auto zero = static_cast<Ty>(0);
-
 			auto tanHalfFOVY = std::tan(fovy_ / static_cast<Ty>(2));
 			basic_square_matrix_4d<Ty> result;
 			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(1) / (aspectratio_ * tanHalfFOVY));
@@ -296,6 +292,56 @@ namespace lin
 
 			impl::set_c_v<VectorSystem>(result, 2, 2, (far_ + near_) / (far_ - near_));
 			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(1));
+			return result;
+		}
+	};
+
+	template <typename VectorSystem = default_vector_system>
+	struct ortho_projection_rhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &left_,
+			const Ty &right_,
+			const Ty &top_,
+			const Ty &bottom_,
+			const Ty &near_,
+			const Ty &far_)
+		{
+			basic_square_matrix_4d<Ty> result;
+			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(2) / (right_ - left_));
+			impl::set_c_v<VectorSystem>(result, 0, 3, -(right_ + left_) / (right_ - left_));
+			impl::set_c_v<VectorSystem>(result, 1, 1, static_cast<Ty>(2) / (top_ - bottom_));
+			impl::set_c_v<VectorSystem>(result, 1, 3, -(top_ + bottom_) / (top_ - bottom_));
+			impl::set_c_v<VectorSystem>(result, 2, 3, -(far_ + near_) / (far_ - near_));
+			impl::set_c_v<VectorSystem>(result, 3, 3, static_cast<Ty>(1));
+
+			impl::set_c_v<VectorSystem>(result, 2, 2, -static_cast<Ty>(2) / (far_ - near_));
+			return result;
+		}
+	};
+
+	template <typename VectorSystem = default_vector_system>
+	struct ortho_projection_lhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &left_,
+			const Ty &right_,
+			const Ty &top_,
+			const Ty &bottom_,
+			const Ty &near_,
+			const Ty &far_)
+		{
+			basic_square_matrix_4d<Ty> result;
+			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(2) / (right_ - left_));
+			impl::set_c_v<VectorSystem>(result, 0, 3, -(right_ + left_) / (right_ - left_));
+			impl::set_c_v<VectorSystem>(result, 1, 1, static_cast<Ty>(2) / (top_ - bottom_));
+			impl::set_c_v<VectorSystem>(result, 1, 3, -(top_ + bottom_) / (top_ - bottom_));
+			impl::set_c_v<VectorSystem>(result, 2, 3, -(far_ + near_) / (far_ - near_));
+			impl::set_c_v<VectorSystem>(result, 3, 3, static_cast<Ty>(1));
+
+			impl::set_c_v<VectorSystem>(result, 2, 2, static_cast<Ty>(2) / (far_ - near_));
 			return result;
 		}
 	};
