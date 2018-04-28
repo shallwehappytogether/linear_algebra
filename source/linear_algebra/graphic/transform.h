@@ -252,6 +252,54 @@ namespace lin
 		}
 	};
 
+	template <typename VectorSystem = default_vector_system>
+	struct perspective_rhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &near_,
+			const Ty &far_,
+			const Ty &fovy_,
+			const Ty &aspectratio_)
+		{
+			const auto zero = static_cast<Ty>(0);
+
+			auto tanHalfFOVY = std::tan(fovy_ / static_cast<Ty>(2));
+			basic_square_matrix_4d<Ty> result;
+			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(1) / (aspectratio_ * tanHalfFOVY));
+			impl::set_c_v<VectorSystem>(result, 1, 1, static_cast<Ty>(1) / tanHalfFOVY);
+			impl::set_c_v<VectorSystem>(result, 2, 3, (static_cast<Ty>(2) * near_ * far_) / (near_ - far_));
+
+			impl::set_c_v<VectorSystem>(result, 2, 2, -(far_ + near_) / (far_ - near_));
+			impl::set_c_v<VectorSystem>(result, 3, 2, -static_cast<Ty>(1));
+			return result;
+		}
+	};
+
+	template <typename VectorSystem = default_vector_system>
+	struct perspective_lhs
+	{
+		template <typename Ty>
+		static basic_square_matrix_4d<Ty> get(
+			const Ty &near_,
+			const Ty &far_,
+			const Ty &fovy_,
+			const Ty &aspectratio_)
+		{
+			const auto zero = static_cast<Ty>(0);
+
+			auto tanHalfFOVY = std::tan(fovy_ / static_cast<Ty>(2));
+			basic_square_matrix_4d<Ty> result;
+			impl::set_c_v<VectorSystem>(result, 0, 0, static_cast<Ty>(1) / (aspectratio_ * tanHalfFOVY));
+			impl::set_c_v<VectorSystem>(result, 1, 1, static_cast<Ty>(1) / tanHalfFOVY);
+			impl::set_c_v<VectorSystem>(result, 2, 3, (static_cast<Ty>(2) * near_ * far_) / (near_ - far_));
+
+			impl::set_c_v<VectorSystem>(result, 2, 2, (far_ + near_) / (far_ - near_));
+			impl::set_c_v<VectorSystem>(result, 3, 2, static_cast<Ty>(1));
+			return result;
+		}
+	};
+
 	template <typename Ty = double, typename VectorSystem = default_vector_system>
 	class transform
 	{

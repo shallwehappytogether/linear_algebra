@@ -168,6 +168,14 @@ int main()
 		lin::lookat_rhs<GLM_VEC_SYS>::get(vector_3d{ 400, 300, 200 }, vector_3d{ 1, 2, 3 }, vector_3d{ 0, 1, 0 }),
 		glm::lookAtRH(glm::vec3{ 400, 300, 200 }, glm::vec3{ 400, 300, 200 } +glm::vec3{ 1, 2, 3 }, { 0, 1, 0 }));
 
+	compare("Perspective matrix",
+		lin::perspective_rhs<GLM_VEC_SYS>::get(0.1, 100., lin::radius(80.), 16 / 9.),
+		glm::perspectiveRH(glm::radians(80.f), 16 / 9.f, 0.1f, 100.0f));
+
+	compare("Perspective matrix(hls)",
+		lin::perspective_lhs<GLM_VEC_SYS>::get(0.1, 100., lin::radius(80.), 16 / 9.),
+		glm::perspectiveLH(glm::radians(80.f), 16 / 9.f, 0.1f, 100.0f));
+
 	compare("Eular angle to quaternion",
 		lin::to_quaternion(lin::eular_angle_xyz(lin::radius(45.0), lin::radius(45.0), lin::radius(45.0))),
 		glm::toQuat(glm::eulerAngleXYZ(glm::radians(45.0), glm::radians(45.0), glm::radians(45.0))));
