@@ -204,12 +204,7 @@ namespace lin
 
 			typename MyBase::size_type r = 0, c = 0, iOutput = 0;
 
-			// µÈ¼ÛÓÚ
-			// value_type fac = (dstr + dstc) % 2 == 0 ? 1 : -1;
-			auto x = (dstr + dstc) % 2; // 0 or 1
-			x = x << 1; // 0 or 2
-			int faci = 1 - static_cast<int>(x); // 1 or -1
-			value_type fac = faci;
+			value_type fac = (dstr + dstc) % 2 == 0 ? 1 : -1;
 
 			auto writeElem = [&]() { result[iOutput++] = from[c * fromdim + r] * fac; };
 
